@@ -82,7 +82,7 @@ RC PagedFileManager::openFile(const string &fileName, FileHandle &fileHandle)
     	return 0;
     }else{
     	FILE* fn;
-    	fn = fopen(fileName, "r+");
+    	FileHandle.thefile = fopen(fileName, "r+");
     }
     
 }
@@ -96,6 +96,7 @@ RC PagedFileManager::closeFile(FileHandle &fileHandle)
 
 FileHandle::FileHandle()
 {
+		*thefile = NULL;
         readPageCounter = 0;
         writePageCounter = 0;
         appendPageCounter = 0;
@@ -104,7 +105,6 @@ FileHandle::FileHandle()
 
 FileHandle::~FileHandle()
 {
-	dataBlock = NULL;
 }
 
 /*This method reads the page into the memory block pointed to by data. 
@@ -116,7 +116,7 @@ from the stream and stores them
 in the block of memory specified by ptr.*/
 RC FileHandle::readPage(PageNum pageNum, void *data)
 {
-	if(fread(dataBlock, ))
+	fread(*data, PAGE_SIZE, 1, *thefile);
 
     return -1;
 }
