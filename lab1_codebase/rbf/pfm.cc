@@ -23,7 +23,7 @@ PagedFileManager::PagedFileManager()
 {
 }
 
-
+/* destoryer-joe*/
 PagedFileManager::~PagedFileManager()
 {
 }
@@ -42,7 +42,7 @@ bool PagedFileManager::file_exists(string fileName){
 
 RC PagedFileManager::createFile(const string &fileName)
 {	
-	FILE * openFile;
+	FILE* openFile;
 	openFile = fopen(fileName, "w");
 
 	if(!file_exists(openFile)){
@@ -81,13 +81,13 @@ RC PagedFileManager::openFile(const string &fileName, FileHandle &fileHandle)
     if(!file_exists(fileName)){
     	return 0;
     }else{
-    	FILE * fn;
-    	fn= fopen(fileName, "r+");
+    	FILE* fn;
+    	fn = fopen(fileName, "r+");
     }
     
 }
 
-
+/*  */
 RC PagedFileManager::closeFile(FileHandle &fileHandle)
 {
     return -1;
