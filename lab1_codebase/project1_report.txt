@@ -17,6 +17,27 @@ Team number :
 - Other implementation details goes here.
 
 
-5. Other (optional)
-- Freely use this section to tell us about other things related to the project 1 (optional)
+5. Keeping track of assignments 
+
+Alix: PagedFileManager::closeFile
+FileHandle::readPage
+RecordBasedFileManager::RecordBasedFileManager
+RecordBasedFileManager::~RecordBasedFileManager
+RecordBasedFileManager::openFile
+RecordBasedFileManager::readRecord
+
+Alec: PagedFileManager::PagedFileManager
+FileHandle::FileHandle()
+FileHandle::writePage
+FileHandle::getNumberOfPages
+RecordBasedFileManager::createFile
+RecordBasedFileManager::closeFile
+RecordBasedFileManager::printRecord
+
+Joe: PagedFileManager::~PagedFileManager
+FileHandle::~FileHandle()
+FileHandle::appendPage
+FileHandle::collectCounterValues
+RecordBasedFileManager::destroyFile
+RecordBasedFileManager::insertRecord
 
