@@ -5,8 +5,10 @@
 #include <string.h>
 #include <stdexcept>
 #include <stdio.h>
+#include <cstdio>
 
 #include "pfm.h"
+
  using namespace std; 
 PagedFileManager* PagedFileManager::_pf_manager = 0;
 
@@ -30,6 +32,7 @@ PagedFileManager::~PagedFileManager()
 
 
 bool PagedFileManager::file_exists(string fileName){
+	FILE* fn;
 	fn = fopen(fileName, "r");
 	if(fn == NULL){
 		return false;
@@ -127,10 +130,30 @@ RC FileHandle::writePage(PageNum pageNum, const void *data)
     return -1;
 }
 
+/*end_of_file returns true if end of file has been reached
+(in this case we cant write to the file) if  it returns false 
+the end of file has not been reached and we can append data*/
+bool end_of_file(){
+	if(fseek(thefile, 0, SEEK_END)!=SUCCESS){
+		return TRUE;
+	}
+	return false;
+}
 
+/*This method appends a new page to the end of 
+the file and writes the given data into the newly 
+allocated page.*/
+/*int fseek ( FILE * stream, long int offset, int origin );*/
 RC FileHandle::appendPage(const void *data)
 {
-    return -1;
+
+	if(end_of_file()!= TRUE){
+		fwrite(data, 1, 4096, thefile);
+		/*Should I put an fflush() method right here?*/
+		return 0;
+
+	}
+	return 1;
 }
 
 
@@ -139,7 +162,8 @@ unsigned FileHandle::getNumberOfPages()
     return -1;
 }
 
-
+/*This method should return the current counter values of this FileHandle in the three given variables. Here is some 
+example code that gives you an idea how it will be applied.*/
 RC FileHandle::collectCounterValues(unsigned &readPageCount, unsigned &writePageCount, unsigned &appendPageCount)
 {
         return -1;
