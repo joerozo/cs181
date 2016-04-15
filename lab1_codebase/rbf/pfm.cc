@@ -82,10 +82,11 @@ RC PagedFileManager::openFile(const string &fileName, FileHandle &fileHandle)
 {
 	/* check if fileHandle already exists for another file*/
     if(!file_exists(fileName)){
-    	return 0;
+    	return -1;
     }else{
     	FILE* fn;
-    	FileHandle.thefile = fopen(fileName, "r+");
+    	FileHandle.thefile = fopen(fileName, "r+")
+    	return 0;
     }
     
 }
@@ -93,7 +94,12 @@ RC PagedFileManager::openFile(const string &fileName, FileHandle &fileHandle)
 /*  */
 RC PagedFileManager::closeFile(FileHandle &fileHandle)
 {
-    return -1;
+    if(!file_exists(fileName)){
+    	return -1;
+    }else{
+    	fclose(FileHandle.thefile);
+    	return 0;
+    }
 }
 
 
@@ -119,9 +125,11 @@ from the stream and stores them
 in the block of memory specified by ptr.*/
 RC FileHandle::readPage(PageNum pageNum, void *data)
 {
-	fread(*data, PAGE_SIZE, 1, *thefile);
-
-    return -1;
+	for(int i = 0; i<=pageNum; i++){
+		fread(*data, PAGE_SIZE, 1, *thefile);
+	}
+	readPageCounter= readPageCounter + 1;
+    return 0;
 }
 
 
