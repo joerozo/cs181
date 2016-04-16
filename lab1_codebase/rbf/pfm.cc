@@ -23,6 +23,7 @@ PagedFileManager* PagedFileManager::instance()
 
 PagedFileManager::PagedFileManager()
 {
+	
 }
 
 PagedFileManager::~PagedFileManager()
