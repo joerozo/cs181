@@ -65,8 +65,6 @@ RC PagedFileManager::createFile(const string &fileName)
 }
 
 /*char *thisIsaString;*/
-
-
 RC PagedFileManager::destroyFile(const string fileName)
 {
 	if(fileName == NULL){
@@ -135,7 +133,30 @@ RC FileHandle::readPage(PageNum pageNum, void *data)
 
 RC FileHandle::writePage(PageNum pageNum, const void *data)
 {
-    return -1;
+	size_t result;
+	int rc =0;
+	//Checking that pageNum
+	if(pageNum >= getNumberOfPages)
+		rc = -1;		
+
+	//finding location in file
+	if(fseek(thefile, pageNum*PAGE_SIZE, SEEK_SET) != 0)
+		rc = -1;	
+
+	//Writing to file
+	if(rc == 0)
+	{
+		result = fwrite(data, 1, PAGE_SIZE, thefile); //Writing to file
+		
+		//Checking if data got written to the file
+		rc = result == PAGE_SIZE ? 0:-1; // this is much easier
+		/*if(result == PAGE_SIZE)
+			rc = 0;
+		else
+			rc = -1;*/
+	}
+
+	return rc;
 }
 
 /*end_of_file returns true if end of file has been reached
@@ -167,7 +188,9 @@ RC FileHandle::appendPage(const void *data)
 
 unsigned FileHandle::getNumberOfPages()
 {
-    return -1;
+	fseek(thefile, 0, SEEK_END);
+	long filesize = ftell(file);
+    return (unsigned)(filesize/PAGE_SIZE);
 }
 
 /*This method should return the current counter values of this FileHandle in the three given variables. Here is some 
