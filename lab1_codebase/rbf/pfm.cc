@@ -160,9 +160,9 @@ RC FileHandle::writePage(PageNum pageNum, const void *data)
 /*end_of_file returns true if end of file has been reached
 (in this case we cant write to the file) if  it returns false 
 the end of file has not been reached and we can append data*/
-bool end_of_file(){
-	if(fseek(thefile, 0, SEEK_END)==SUCCESS){
-		return TRUE;
+bool FileHandle::end_of_file(){
+	if(fseek(thefile, 0, SEEK_END)==0){
+		return true;
 	}
 	return false;
 }
@@ -176,13 +176,13 @@ RC FileHandle::appendPage(const void *data)
 	size_t result;
 	int rc =-1;
 
-	if(end_of_file() == TRUE){
+	if(end_of_file() == true){
 		result = fwrite(data, 1, PAGE_SIZE, thefile);
 		rc = result == PAGE_SIZE ? 0:-1; 
 
 	}
 
-	if(rc ===0)
+	if(rc ==0)
 		appendPageCounter++;
 	return rc;
 }
@@ -191,7 +191,7 @@ RC FileHandle::appendPage(const void *data)
 unsigned FileHandle::getNumberOfPages()
 {
 	fseek(thefile, 0, SEEK_END);
-	long filesize = ftell(file);
+	long filesize = ftell(thefile);
     return (unsigned)(filesize/PAGE_SIZE);
 }
 

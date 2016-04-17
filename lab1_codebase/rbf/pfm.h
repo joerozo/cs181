@@ -43,6 +43,7 @@ public:
     FileHandle();                                                    	// Default constructor
     ~FileHandle();                                                   	// Destructor
 
+    bool end_of_file()                                                  //Tell if you've reached end of file 
     RC readPage(PageNum pageNum, void *data);                           // Get a specific page
     RC writePage(PageNum pageNum, const void *data);                    // Write a specific page
     RC appendPage(const void *data);                                    // Append a specific page
