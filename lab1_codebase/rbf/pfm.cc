@@ -30,6 +30,7 @@ PagedFileManager::~PagedFileManager()
 }
 
 
+
 bool PagedFileManager::file_exists(string fileName){
 	FILE* fn;
 	fn = fopen(fileName.c_str(), "r");
@@ -46,10 +47,10 @@ RC PagedFileManager::createFile(const string &fileName)
 {	
 	FILE* openFile;
 	openFile = fopen(fileName.c_str(), "wt");
-
-	if(!file_exists(openFile)){
+	if(!file_exists(fileName)){
+		
 		if(openFile == NULL){
-			return 1;
+			return -1;
 		}
 
 		else{
@@ -82,8 +83,8 @@ RC PagedFileManager::openFile(const string &fileName, FileHandle &fileHandle)
     if(!file_exists(fileName)){
     	return -1;
     }else{
-    	FILE* fn;
-    	FileHandle.thefile = fopen(fileName.c_str(), "r+")
+    	//FILE* fn;
+    	fileHandle.thefile = fopen(fileName.c_str(), "r+");
     	return 0;
     }
     
@@ -92,10 +93,10 @@ RC PagedFileManager::openFile(const string &fileName, FileHandle &fileHandle)
 /*  */
 RC PagedFileManager::closeFile(FileHandle &fileHandle)
 {
-    if(!file_exists(fileName)){
+    if(fileHandle.thefile == NULL){
     	return -1;
     }else{
-    	fclose(fileHandle->thefile);
+    	fclose(fileHandle.thefile);
     	return 0;
     }
 }
@@ -121,7 +122,7 @@ Note that page numbers start from 0.*/
 RC FileHandle::readPage(PageNum pageNum, void *data)
 {
 	for(int i = 0; i<=pageNum; i++){
-		fread(*data, PAGE_SIZE, 1, *thefile);
+		fread(data, PAGE_SIZE, 1, thefile);
 	}
 	readPageCounter= readPageCounter + 1;
     return 0;
@@ -204,4 +205,4 @@ RC FileHandle::collectCounterValues(unsigned &readPageCount, unsigned &writePage
     writePageCounter = writePageCount;
     appendPageCounter = appendPageCount;
     return 0;
-}                                                                                                                             1,17          Top
+} 
