@@ -183,7 +183,7 @@ RC FileHandle::appendPage(const void *data)
 	}
 
 	if(rc ===0)
-		appendPageCounter++
+		appendPageCounter++;
 	return rc;
 }
 
