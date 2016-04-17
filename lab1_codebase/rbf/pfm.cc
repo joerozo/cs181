@@ -152,7 +152,7 @@ RC FileHandle::writePage(PageNum pageNum, const void *data)
 			rc = -1;*/
 	}
 
-	if(rc ===0)
+	if(rc ==0)
 		writePageCounter++;
 	return rc;
 }
