@@ -9,7 +9,7 @@
 
 #include "pfm.h"
 
- using namespace std; 
+using namespace std; 
 PagedFileManager* PagedFileManager::_pf_manager = 0;
 
 PagedFileManager* PagedFileManager::instance()
@@ -25,7 +25,6 @@ PagedFileManager::PagedFileManager()
 {
 }
 
-/* destoryer-joe*/
 PagedFileManager::~PagedFileManager()
 {
 }
@@ -64,7 +63,7 @@ RC PagedFileManager::createFile(const string &fileName)
 	}
 }
 
-/*char *thisIsaString;*/
+
 RC PagedFileManager::destroyFile(const string fileName)
 {
 	if(fileName == NULL){
@@ -95,7 +94,7 @@ RC PagedFileManager::closeFile(FileHandle &fileHandle)
     if(!file_exists(fileName)){
     	return -1;
     }else{
-    	fclose(FileHandle.thefile);
+    	fclose(FileHandle->thefile);
     	return 0;
     }
 }
@@ -117,10 +116,7 @@ FileHandle::~FileHandle()
 /*This method reads the page into the memory block pointed to by data. 
 The page should exist. 
 Note that page numbers start from 0.*/
-/*size_t fread ( void * ptr, size_t size, size_t count, FILE * stream );
-Reads an array of count elements, each one with a size of size bytes, 
-from the stream and stores them 
-in the block of memory specified by ptr.*/
+
 RC FileHandle::readPage(PageNum pageNum, void *data)
 {
 	for(int i = 0; i<=pageNum; i++){
@@ -155,7 +151,7 @@ RC FileHandle::writePage(PageNum pageNum, const void *data)
 		else
 			rc = -1;*/
 	}
-
+	writePageCounter=writePageCounter+1;
 	return rc;
 }
 
