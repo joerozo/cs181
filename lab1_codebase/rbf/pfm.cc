@@ -45,7 +45,7 @@ bool PagedFileManager::file_exists(string fileName){
 RC PagedFileManager::createFile(const string &fileName)
 {	
 	FILE* openFile;
-	openFile = fopen(fileName, "w");
+	openFile = fopen(fileName, "wt");
 
 	if(!file_exists(openFile)){
 		if(openFile == NULL){
@@ -58,7 +58,7 @@ RC PagedFileManager::createFile(const string &fileName)
 		}
 	}else{
 		cout << "Error: File Already Exists"; 
-		flose(openFile);
+		fclose(openFile);
 		return 0;
 	}
 }

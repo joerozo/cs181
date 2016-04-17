@@ -1,6 +1,7 @@
 #ifndef _pfm_h_
 #define _pfm_h_
 
+
 typedef unsigned PageNum;
 typedef int RC;
 typedef char byte;
@@ -16,7 +17,7 @@ class PagedFileManager
 {
 public:
     static PagedFileManager* instance();                     			// Access to the _pf_manager instance
-
+    bool file_exists(string fileName);
     RC createFile    (const string &fileName);                         	// Create a new file
     RC destroyFile   (const string &fileName);                         	// Destroy a file
     RC openFile      (const string &fileName, FileHandle &fileHandle); 	// Open a file
