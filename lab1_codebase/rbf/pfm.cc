@@ -151,7 +151,9 @@ RC FileHandle::writePage(PageNum pageNum, const void *data)
 		else
 			rc = -1;*/
 	}
-	writePageCounter=writePageCounter+1;
+
+	if(rc ===0)
+		writePageCounter++;
 	return rc;
 }
 
@@ -159,7 +161,7 @@ RC FileHandle::writePage(PageNum pageNum, const void *data)
 (in this case we cant write to the file) if  it returns false 
 the end of file has not been reached and we can append data*/
 bool end_of_file(){
-	if(fseek(thefile, 0, SEEK_END)!=SUCCESS){
+	if(fseek(thefile, 0, SEEK_END)==SUCCESS){
 		return TRUE;
 	}
 	return false;
@@ -171,14 +173,18 @@ allocated page.*/
 /*int fseek ( FILE * stream, long int offset, int origin );*/
 RC FileHandle::appendPage(const void *data)
 {
+	size_t result;
+	int rc =-1;
 
-	if(end_of_file()!= TRUE){
-		fwrite(data, 1, 4096, thefile);
-		/*Should I put an fflush() method right here?*/
-		return 0;
+	if(end_of_file() == TRUE){
+		result = fwrite(data, 1, PAGE_SIZE, thefile);
+		rc = result == PAGE_SIZE ? 0:-1; 
 
 	}
-	return 1;
+
+	if(rc ===0)
+		appendPageCounter++
+	return rc;
 }
 
 
@@ -193,5 +199,8 @@ unsigned FileHandle::getNumberOfPages()
 example code that gives you an idea how it will be applied.*/
 RC FileHandle::collectCounterValues(unsigned &readPageCount, unsigned &writePageCount, unsigned &appendPageCount)
 {
-        return -1;
+	readPageCounter = readPageCount;
+    writePageCounter = writePageCount;
+    appendPageCounter = appendPageCount;
+    return 0;
 }                                                                                                                             1,17          Top
