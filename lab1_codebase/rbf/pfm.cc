@@ -64,13 +64,13 @@ RC PagedFileManager::createFile(const string &fileName)
 }
 
 
-RC PagedFileManager::destroyFile(const string fileName)
+RC PagedFileManager::destroyFile(const string &fileName)
 {
 	if(fileName == NULL){
 		cout<< "Error: File is NULL";
 		return 1;
 	}else{
-		remove(fileName);
+		fremove(fileName);
 	}
 }
 
