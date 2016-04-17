@@ -9,7 +9,7 @@
 
 #include "pfm.h"
 
- using namespace std; 
+using namespace std; 
 PagedFileManager* PagedFileManager::_pf_manager = 0;
 
 PagedFileManager* PagedFileManager::instance()
@@ -25,7 +25,6 @@ PagedFileManager::PagedFileManager()
 {
 }
 
-/* destoryer-joe*/
 PagedFileManager::~PagedFileManager()
 {
 }
@@ -64,8 +63,6 @@ RC PagedFileManager::createFile(const string &fileName)
 	}
 }
 
-/*char *thisIsaString;*/
-
 
 RC PagedFileManager::destroyFile(const string fileName)
 {
@@ -82,10 +79,11 @@ RC PagedFileManager::openFile(const string &fileName, FileHandle &fileHandle)
 {
 	/* check if fileHandle already exists for another file*/
     if(!file_exists(fileName)){
-    	return 0;
+    	return -1;
     }else{
     	FILE* fn;
-    	FileHandle.thefile = fopen(fileName, "r+");
+    	FileHandle.thefile = fopen(fileName, "r+")
+    	return 0;
     }
     
 }
@@ -93,7 +91,12 @@ RC PagedFileManager::openFile(const string &fileName, FileHandle &fileHandle)
 /*  */
 RC PagedFileManager::closeFile(FileHandle &fileHandle)
 {
-    return -1;
+    if(!file_exists(fileName)){
+    	return -1;
+    }else{
+    	fclose(FileHandle->thefile);
+    	return 0;
+    }
 }
 
 
@@ -113,21 +116,43 @@ FileHandle::~FileHandle()
 /*This method reads the page into the memory block pointed to by data. 
 The page should exist. 
 Note that page numbers start from 0.*/
-/*size_t fread ( void * ptr, size_t size, size_t count, FILE * stream );
-Reads an array of count elements, each one with a size of size bytes, 
-from the stream and stores them 
-in the block of memory specified by ptr.*/
+
 RC FileHandle::readPage(PageNum pageNum, void *data)
 {
-	fread(*data, PAGE_SIZE, 1, *thefile);
-
-    return -1;
+	for(int i = 0; i<=pageNum; i++){
+		fread(*data, PAGE_SIZE, 1, *thefile);
+	}
+	readPageCounter= readPageCounter + 1;
+    return 0;
 }
 
 
 RC FileHandle::writePage(PageNum pageNum, const void *data)
 {
-    return -1;
+	size_t result;
+	int rc =0;
+	//Checking that pageNum
+	if(pageNum >= getNumberOfPages)
+		rc = -1;		
+
+	//finding location in file
+	if(fseek(thefile, pageNum*PAGE_SIZE, SEEK_SET) != 0)
+		rc = -1;	
+
+	//Writing to file
+	if(rc == 0)
+	{
+		result = fwrite(data, 1, PAGE_SIZE, thefile); //Writing to file
+		
+		//Checking if data got written to the file
+		rc = result == PAGE_SIZE ? 0:-1; // this is much easier
+		/*if(result == PAGE_SIZE)
+			rc = 0;
+		else
+			rc = -1;*/
+	}
+	writePageCounter=writePageCounter+1;
+	return rc;
 }
 
 /*end_of_file returns true if end of file has been reached
@@ -159,7 +184,9 @@ RC FileHandle::appendPage(const void *data)
 
 unsigned FileHandle::getNumberOfPages()
 {
-    return -1;
+	fseek(thefile, 0, SEEK_END);
+	long filesize = ftell(file);
+    return (unsigned)(filesize/PAGE_SIZE);
 }
 
 /*This method should return the current counter values of this FileHandle in the three given variables. Here is some 
