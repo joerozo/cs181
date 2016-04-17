@@ -32,7 +32,7 @@ PagedFileManager::~PagedFileManager()
 
 bool PagedFileManager::file_exists(string fileName){
 	FILE* fn;
-	fn = fopen(fileName, "r");
+	fn = fopen(fileName.c_str(), "r");
 	if(fn == NULL){
 		return false;
 	}else{
@@ -45,7 +45,7 @@ bool PagedFileManager::file_exists(string fileName){
 RC PagedFileManager::createFile(const string &fileName)
 {	
 	FILE* openFile;
-	openFile = fopen(fileName, "wt");
+	openFile = fopen(fileName.c_str(), "wt");
 
 	if(!file_exists(openFile)){
 		if(openFile == NULL){
@@ -82,7 +82,7 @@ RC PagedFileManager::openFile(const string &fileName, FileHandle &fileHandle)
     	return -1;
     }else{
     	FILE* fn;
-    	FileHandle.thefile = fopen(fileName, "r+")
+    	FileHandle.thefile = fopen(fileName.c_str(), "r+")
     	return 0;
     }
     
