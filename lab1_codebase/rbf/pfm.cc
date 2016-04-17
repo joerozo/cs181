@@ -70,7 +70,7 @@ RC PagedFileManager::destroyFile(const string &fileName)
 		cout<< "Error: File does not exist";
 		return -1;
 	}else{
-		remove(fileName);
+		remove(fileName.c_str());
 		return 0;
 	}
 }
@@ -103,7 +103,7 @@ RC PagedFileManager::closeFile(FileHandle &fileHandle)
 
 FileHandle::FileHandle()
 {
-		*thefile = NULL;
+		thefile = NULL;
         readPageCounter = 0;
         writePageCounter = 0;
         appendPageCounter = 0;
@@ -133,7 +133,7 @@ RC FileHandle::writePage(PageNum pageNum, const void *data)
 	size_t result;
 	int rc =0;
 	//Checking that pageNum
-	if(pageNum >= getNumberOfPages)
+	if(pageNum >= getNumberOfPages())
 		rc = -1;		
 
 	//finding location in file
