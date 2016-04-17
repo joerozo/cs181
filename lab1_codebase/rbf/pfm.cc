@@ -66,11 +66,12 @@ RC PagedFileManager::createFile(const string &fileName)
 
 RC PagedFileManager::destroyFile(const string &fileName)
 {
-	if(fileName == NULL){
-		cout<< "Error: File is NULL";
-		return 1;
+	if(!file_exists(fileName)){
+		cout<< "Error: File does not exist";
+		return -1;
 	}else{
-		fremove(fileName);
+		remove(fileName);
+		return 0;
 	}
 }
 
@@ -94,7 +95,7 @@ RC PagedFileManager::closeFile(FileHandle &fileHandle)
     if(!file_exists(fileName)){
     	return -1;
     }else{
-    	fclose(FileHandle->thefile);
+    	fclose(fileHandle->thefile);
     	return 0;
     }
 }
