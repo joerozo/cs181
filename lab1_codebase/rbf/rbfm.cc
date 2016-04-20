@@ -71,7 +71,7 @@ Copies the values of num bytes from the location pointed to by source directly t
 RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor, const void *data) {
     unsigned offset = 0;
     unsigned vcl;
-    char * type_string; 
+    char* type_string; 
     int type_int;
     float type_real;
 
@@ -81,12 +81,11 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
                 memcpy(&type_int, ((char*) data + offset), intSize);
                 offset += intSize;
                 cout << "Attribute " << recordDescriptor[i].type() << " (integer): " << type_int << endl;
-                break;
             }
             else{
                 cout << "Attribute " << recordDescriptor[i].type() << " (integer): NULL " << endl;
-                break;
             }
+        break;
         }
         else if(recordDescriptor.type() == TypeVarChar){
             if(recordDescriptor.type() != NULL){
@@ -97,24 +96,20 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
                 memcpy((void*) stringVal, ((char*) data + offset), vcl);
                 stringVal[vcl]="\0";
                 cout << "Attribute " << recordDescriptor[i].type() << " (VarChar): " << stringVal << endl;
-                break;
             }   
             else{
                 cout << "Attribute " << recordDescriptor[i].type() << " (VarChar): NULL " << endl;
-                break;
             }     
-
+        break;
         }
         else if(recordDescriptor.type() == TypeReal){
             if(recordDescriptor.type() != NULL){
                 memcpy(type_real, ((char*) data + offset), realSize);
                 offset += realSize;
                 cout << "Attribute: " << recordDescriptor[i].type() << "Real: " <<type_real << endl; 
-                break;
             }
             else{
                 cout << "Attribute: " << recordDescriptor[i].type() << "Real: NULL" << endl; 
-                break;
             }    
         }
         
