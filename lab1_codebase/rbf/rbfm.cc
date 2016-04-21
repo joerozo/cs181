@@ -43,8 +43,13 @@ RC RecordBasedFileManager::closeFile(FileHandle &fileHandle) {
 }
 
 RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const void *data, RID &rid) {
-    return -1;
-}
+    int result = -1;
+
+    if(fileHandle.thefile == NULL)
+        return result;
+    
+
+    return result;
 
 RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid, void *data) {
     return -1;
