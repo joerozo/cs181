@@ -150,6 +150,43 @@ short RecordBasedFileManager::getRecordLength(const vector<Attribute> &recordDes
     return length;
 }
 
+RC RecordBasedFileManager::GetRecordFromData(const vector<Attribute> &recordDescriptor, const void *data, void *record)
+{
+    short dataOffset = (recordDescriptor.size() + 2)*sizeof(short);
+    short recordOffset = 0;
+    int vCharLen  = 0;
+    int i =0;
+    *((short*)record) = 0;// clear record
+
+    for(int i = 0; i < recordDescriptor.size(); i++)
+    {
+        if(recordDescriptor[i].Type == TypeInt)
+        {
+            memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(int));
+            dataOffset   += sizeof(int);
+            recordOffset += sizeof(int);
+        }
+        else if(recordDescriptor[i].Type == TypeReal) 
+        {
+            memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(float));
+            dataOffset   += sizeof(float);
+            recordOffset += sizeof(float);
+        }
+        else if(recordDescriptor[i].Type == TypeVarChar)     
+        {
+            memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(int));
+            dataOffset += sizeof(int);
+            memcpy(recordOffset, (*char)data + dataOffset, vCharLen);
+            dataOffset += vCharLen;
+            recordOffset += vCharLen + sizeof(int);// length of char and the delimiter
+        }  
+    }
+
+    *((short*)record + i +1) = recordOffset;//size of data
+
+    return 0;
+}
+
 
 
 

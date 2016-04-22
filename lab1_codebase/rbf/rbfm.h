@@ -133,6 +133,7 @@ protected:
 private:
   static RecordBasedFileManager *_rbf_manager;
   short getRecordLength(const vector<Attribute> &recordDescriptor, const void *data);
+  RC GetRecordFromData(const vector<Attribute> &recordDescriptor, const void *data, void *record);
 };
 
 #endif
