@@ -208,7 +208,7 @@ short RecordBasedFileManager::getRecordLength(const vector<Attribute> &recordDes
         }
         else if(recordDescriptor[i].type == TypeVarChar)     
         {
-            memcpy(&vCharLen, (*char)data + offset, sizeof(int));
+            memcpy(&vCharLen, data + offset, sizeof(int));
             length += vCharLen;
             offset += vCharLen + sizeof(int);// length of char and the delimiter
         }  
