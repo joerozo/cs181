@@ -242,7 +242,7 @@ RC RecordBasedFileManager::GetRecordFromData(const vector<Attribute> &recordDesc
         {
             memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(int));
             dataOffset += sizeof(int);
-            memcpy(recordOffset, (*char)data + dataOffset, vCharLen);
+            memcpy((char*)record + recordOffset, (char*)data + dataOffset, vCharLen);
             dataOffset += vCharLen;
             recordOffset += vCharLen + sizeof(int);// length of char and the delimiter
         }  
