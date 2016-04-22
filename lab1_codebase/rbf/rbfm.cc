@@ -43,7 +43,61 @@ RC RecordBasedFileManager::closeFile(FileHandle &fileHandle) {
 }
 
 RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const void *data, RID &rid) {
-    return -1;
+    int result = -1;
+
+    if(fileHandle.thefile == NULL)
+        return result;
+
+    int recordLength = getRecordLength(recordDescriptor, data);
+    void *record = malloc(recordLength);//allocating space for record
+    GetRecordFromData(recordDescriptor, data, record);
+
+    char *page = (char*)malloc(PAGE_SIZE);// allocating space for page
+    if(fileHandle.readPage(rid.pageNum, page) == 0) //getting a copy of page
+    {
+        if(page == NULL)
+        {   
+            PageStats *stats;
+            Slot *slot;
+            stats->numberOfSlots = 1;
+            stats->freeSpaceOffset = recordLength+1;
+            slot->length = recordLength;
+            slot->offset = 0;
+            memmove (page, record, recordLength);
+            memmove (page + PAGE_SIZE -1 - sizeof(PageStats), stats, sizeof(PageStats));
+            memmove (page + PAGE_SIZE -1 - sizeof(PageStats)- sizeof(Slot), slot, sizeof(Slot));
+
+            if(fileHandle.writePage(rid.pageNum, page) == 0)
+                result = 0;
+            else
+                result = -1;
+
+        }
+        else
+        {
+            //get page stats
+            PageStats *stats = (PageStats*)page[PAGE_SIZE - 1 -sizeof(PageStats)];
+            short pageoffset = stats->freeSpaceOffset;
+            //update page states
+            stats->freeSpaceOffset = pageoffset + recordLength +1;
+            stats->numberOfSlots++;
+            //create slot
+            Slot *newslot;
+            newslot->offset = pageoffset;
+            newslot->length = recordLength;
+
+            memmove(page + pageoffset, record, recordLength);
+            memmove(page + PAGE_SIZE -1 - sizeof(PageStats), stats, sizeof(PageStats));
+            memmove(page + PAGE_SIZE -1 - sizeof(PageStats)-stats->numberOfSlots*sizeof(Slot),  newslot,sizeof(Slot));
+
+
+        }
+
+
+    }
+    free(record);
+    free(page);
+    return result;
 }
 
 RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid, void *data) {
@@ -118,10 +172,67 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
     }
 }
 
+short RecordBasedFileManager::getRecordLength(const vector<Attribute> &recordDescriptor, const void *data)
+{
+    short length = 2*sizeof(short);//tombstone
+    int offset = 0;
+    int vCharLen  = 0;
+    for(int i = 0; i < recordDescriptor.size(); i++)
+    {
+        length +=sizeof(short);//delimiter
+        if(recordDescriptor[i].Type == TypeInt)
+        {
+            offset += recordDescriptor[i];
+            length += recordDescriptor[i];
+        }
+        else if(recordDescriptor[i].Type == TypeReal) 
+        {
+            offset += recordDescriptor[i];
+            length += recordDescriptor[i];
+        }
+        else if(recordDescriptor[i].Type == TypeVarChar)     
+        {
+            memcpy(&vCharLen, (*char)data + offset, sizeof(int));
+            length += vCharLen;
+            offset += vCharLen + sizeof(int);// length of char and the delimiter
+        }  
+    }
+    return length;
+}
 
+RC RecordBasedFileManager::GetRecordFromData(const vector<Attribute> &recordDescriptor, const void *data, void *record)
+{
+    short dataOffset = (recordDescriptor.size() + 2)*sizeof(short);
+    short recordOffset = 0;
+    int vCharLen  = 0;
+    int i =0;
+    *((short*)record) = 0;// clear record
 
+    for(int i = 0; i < recordDescriptor.size(); i++)
+    {
+        if(recordDescriptor[i].Type == TypeInt)
+        {
+            memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(int));
+            dataOffset   += sizeof(int);
+            recordOffset += sizeof(int);
+        }
+        else if(recordDescriptor[i].Type == TypeReal) 
+        {
+            memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(float));
+            dataOffset   += sizeof(float);
+            recordOffset += sizeof(float);
+        }
+        else if(recordDescriptor[i].Type == TypeVarChar)     
+        {
+            memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(int));
+            dataOffset += sizeof(int);
+            memcpy(recordOffset, (*char)data + dataOffset, vCharLen);
+            dataOffset += vCharLen;
+            recordOffset += vCharLen + sizeof(int);// length of char and the delimiter
+        }  
+    }
 
+    *((short*)record + i +1) = recordOffset;//size of data
 
-
-
-
+    return 0;
+}

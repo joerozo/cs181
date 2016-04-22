@@ -23,6 +23,7 @@ PagedFileManager* PagedFileManager::instance()
 
 PagedFileManager::PagedFileManager()
 {
+	
 }
 
 PagedFileManager::~PagedFileManager()
@@ -32,35 +33,30 @@ PagedFileManager::~PagedFileManager()
 
 
 bool PagedFileManager::file_exists(string fileName){
-	FILE* fn;
-	fn = fopen(fileName.c_str(), "r");
-	if(fn == NULL){
-		return false;
-	}else{
-		fclose(fn);
-		return true;
-	}
-
+	if (FILE *file = fopen(fileName.c_str(), "r")) {
+        fclose(file);
+        return true;
+    } else {
+        return false;
+    }   
 }
 
 RC PagedFileManager::createFile(const string &fileName)
 {	
-	FILE* openFile;
-	openFile = fopen(fileName.c_str(), "wt");
-	if(!file_exists(fileName)){
-		
+	if(file_exists(fileName)) {
+		//file already exists, error
+		return -1;
+	}
+	else{
+		FILE* openFile;
+		openFile = fopen(fileName.c_str(), "wt");
 		if(openFile == NULL){
 			return -1;
 		}
-
 		else{
 			fclose(openFile);
 			return 0;
 		}
-	}else{
-		cout << "Error: File Already Exists"; 
-		fclose(openFile);
-		return 0;
 	}
 }
 
@@ -118,14 +114,25 @@ FileHandle::~FileHandle()
 /*This method reads the page into the memory block pointed to by data. 
 The page should exist. 
 Note that page numbers start from 0.*/
-
 RC FileHandle::readPage(PageNum pageNum, void *data)
 {
-	for(int i = 0; i<=pageNum; i++){
-		fread(data, PAGE_SIZE, 1, thefile);
+	size_t result;
+	int rc =0;
+	//Checking that pageNum
+	if(pageNum >= getNumberOfPages())
+		rc = -1;		
+
+	//finding location in file
+	if(fseek(thefile, pageNum*PAGE_SIZE, SEEK_SET) != 0)
+		rc = -1;	
+
+	//Reading from file
+	if(rc == 0)
+	{
+		fread(data, PAGE_SIZE, 1, thefile); //Reading from file
+		readPageCounter++;
 	}
-	readPageCounter= readPageCounter + 1;
-    return 0;
+	return rc;
 }
 
 
@@ -183,9 +190,10 @@ RC FileHandle::appendPage(const void *data)
 		rc = result == PAGE_SIZE ? 0:-1; 
 
 	}
+	if(rc ==0) {
 
-	if(rc ==0)
-		appendPageCounter++;
+		appendPageCounter=appendPageCounter+1;
+	}
 	return rc;
 }
 
@@ -201,8 +209,8 @@ unsigned FileHandle::getNumberOfPages()
 example code that gives you an idea how it will be applied.*/
 RC FileHandle::collectCounterValues(unsigned &readPageCount, unsigned &writePageCount, unsigned &appendPageCount)
 {
-	readPageCounter = readPageCount;
-    writePageCounter = writePageCount;
-    appendPageCounter = appendPageCount;
+	readPageCount = readPageCounter;
+    writePageCount = writePageCounter;
+    appendPageCount = appendPageCounter;
     return 0;
 } 

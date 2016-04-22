@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <climits>
-
+#include <string.h>
 #include "../rbf/pfm.h"
 #define intSize 4
 #define realSize 4
@@ -19,6 +19,19 @@ typedef struct
   unsigned slotNum; // slot number in the page
 } RID;
 
+//Hold the stats on the page
+typedef struct 
+{
+  short numberOfSlots;
+  short freeSpaceOffset; 
+}PageStats;
+
+//slots
+typedef struct $
+{
+  short length;
+  short offset; 
+}Slot;
 
 // Attribute
 typedef enum { TypeInt = 0, TypeReal, TypeVarChar } AttrType;
@@ -135,6 +148,8 @@ protected:
 
 private:
   static RecordBasedFileManager *_rbf_manager;
+  short getRecordLength(const vector<Attribute> &recordDescriptor, const void *data);
+  RC GetRecordFromData(const vector<Attribute> &recordDescriptor, const void *data, void *record);
 };
 
 #endif

@@ -26,10 +26,10 @@ RecordBasedFileManager::~RecordBasedFileManager
 RecordBasedFileManager::openFile
 RecordBasedFileManager::readRecord
 
-Alec: PagedFileManager::PagedFileManager
-FileHandle::FileHandle()					DONE				- NOT TESTED
-FileHandle::writePage						Still working on it - NOT TESTED
-FileHandle::getNumberOfPages				DONE				- NOT TESTED		
+Alec: PagedFileManager::PagedFileManager	DONE	- NOT TESTED
+FileHandle::FileHandle()					DONE	- NOT TESTED
+FileHandle::writePage						DONE	- NOT TESTED
+FileHandle::getNumberOfPages				DONE	- NOT TESTED		
 RecordBasedFileManager::createFile			
 RecordBasedFileManager::closeFile			
 RecordBasedFileManager::printRecord			
