@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <climits>
-
+#include <string.h>
 #include "../rbf/pfm.h"
 
 using namespace std;

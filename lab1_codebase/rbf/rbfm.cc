@@ -62,10 +62,10 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
             stats->numberOfSlots = 1;
             stats->freeSpaceOffset = recordLength+1;
             slot->length = recordLength;
-            slot->0ffset = 0;
-            memmove(page, record, recordLength);
-            memmove(page + PAGE_SIZE -1 - sizeof(PageStats), stats, sizeof(PageStats));
-            memmove(page + PAGE_SIZE -1 - sizeof(PageStats)- sizeof(Slot), slot, sizeof(Slot));
+            slot->offset = 0;
+            memmove (page, record, recordLength);
+            memmove (page + PAGE_SIZE -1 - sizeof(PageStats), stats, sizeof(PageStats));
+            memmove (page + PAGE_SIZE -1 - sizeof(PageStats)- sizeof(Slot), slot, sizeof(Slot));
 
             if(fileHandle.writePage(rid.pageNum, page) == 0)
                 result = 0;
