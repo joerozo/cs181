@@ -1,9 +1,4 @@
 #!/bin/bash
-if [ $? -ne 0 ]; then
-    echo "[ERROR] The directory structure is not correct. Please fix it!"
-    echo
-    exit 1
-fi
 cd lab1_codebase
 cd rbf
 make clean
