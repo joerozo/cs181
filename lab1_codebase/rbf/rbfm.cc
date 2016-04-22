@@ -105,7 +105,19 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
 
 RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid, void *data) {
     char *page = (char*)malloc(PAGE_SIZE);// allocating space for page
+
     if (fileHandle.readPage(rid.pageNum, page)) {
+        pageStats stats;
+        Slot slot;
+        /*grab the pageStats using memcpy
+          check if rid.slotnums <= stats.numberOfSlot then
+            grab slot      example: memcpy(&slot, page + PAGE_SIZE - 1 - sizeof(PageStats) - rid.slotnums*sizeof(Slot), sizeof(Slot))
+            create a record length of slot.length use malloc
+            get record = use memcpy(record, page + slot.offset, slot.length)
+            then decode the record
+          else
+            error
+          end if
         memcpy(data, page + rid.slotNum, offset);
         free(page);
         return 0;
