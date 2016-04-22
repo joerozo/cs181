@@ -24,7 +24,7 @@ typedef struct
 }PageStats;
 
 //slots
-typedef struct $
+typedef struct
 {
   short length;
   short offset; 
