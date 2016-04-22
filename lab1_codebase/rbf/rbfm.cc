@@ -93,8 +93,6 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
             memmove(page + PAGE_SIZE -1 - sizeof(PageStats), statsptr, sizeof(PageStats));
             memmove(page + PAGE_SIZE -1 - sizeof(PageStats)-stats.numberOfSlots*sizeof(Slot),  slotptr, sizeof(Slot));
         }
-
-
     }
     if(fileHandle.writePage(rid.pageNum, page) == 0)
         result = 0;
@@ -106,7 +104,17 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
 }
 
 RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid, void *data) {
-    return -1;
+    char *page = (char*)malloc(PAGE_SIZE);// allocating space for page
+    if (fileHandle.readPage(rid.pageNum, page)) {
+        memcpy(data, page + rid.slotNum, offset);
+        free(page);
+        return 0;
+    }
+    else {
+        //couldn't read page 
+        free(page);
+        return -1;
+    }
 }
 /*int main ()
 {
