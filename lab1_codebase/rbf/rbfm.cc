@@ -190,13 +190,13 @@ short RecordBasedFileManager::getRecordLength(const vector<Attribute> &recordDes
         length +=sizeof(short);//delimiter
         if(recordDescriptor[i].type == TypeInt)
         {
-            offset += recordDescriptor[i];
-            length += recordDescriptor[i];
+            offset += recordDescriptor[i].length;
+            length += recordDescriptor[i].length;
         }
         else if(recordDescriptor[i].type == TypeReal) 
         {
-            offset += recordDescriptor[i];
-            length += recordDescriptor[i];
+            offset += recordDescriptor[i].length;
+            length += recordDescriptor[i].length;
         }
         else if(recordDescriptor[i].type == TypeVarChar)     
         {
