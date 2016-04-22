@@ -44,7 +44,6 @@ RC RecordBasedFileManager::closeFile(FileHandle &fileHandle) {
 
 RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const void *data, RID &rid) {
     int result = -1;
-
     if(fileHandle.thefile == NULL)
         return result;
 
@@ -76,25 +75,28 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
         else
         {
             //get page stats
-            PageStats *stats = (PageStats*)page[PAGE_SIZE - 1 -sizeof(PageStats)];
-            short pageoffset = stats->freeSpaceOffset;
+            PageStats stats;
+            memcpy(&stats,  page + PAGE_SIZE - 1 -sizeof(PageStats), sizeof(PageStats));
+            short pageoffset = stats.freeSpaceOffset;
             //update page states
-            stats->freeSpaceOffset = pageoffset + recordLength +1;
-            stats->numberOfSlots++;
+            stats.freeSpaceOffset = pageoffset + recordLength +1;
+            stats.numberOfSlots++;
             //create slot
             Slot *newslot;
             newslot->offset = pageoffset;
             newslot->length = recordLength;
-
+ 
             memmove(page + pageoffset, record, recordLength);
             memmove(page + PAGE_SIZE -1 - sizeof(PageStats), stats, sizeof(PageStats));
             memmove(page + PAGE_SIZE -1 - sizeof(PageStats)-stats->numberOfSlots*sizeof(Slot),  newslot,sizeof(Slot));
-
-
         }
 
 
     }
+    if(fileHandle.writePage(rid.pageNum, page) == 0)
+        result = 0;
+    else
+        result=-1;
     free(record);
     free(page);
     return result;
@@ -122,7 +124,11 @@ Copies the values of num bytes from the location pointed to by source directly t
 /*#define intSize 4
 #define realSize 4
 #define stringSize 4*/
+
 RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor, const void *data) {
+    return -1;
+}
+/*RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor, const void *data) {
     unsigned offset = 0;
     unsigned vcl;
     char* type_string; 
@@ -170,7 +176,7 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
         
     }
     }
-}
+}*/
 
 short RecordBasedFileManager::getRecordLength(const vector<Attribute> &recordDescriptor, const void *data)
 {
