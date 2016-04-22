@@ -185,17 +185,17 @@ short RecordBasedFileManager::getRecordLength(const vector<Attribute> &recordDes
     for(int i = 0; i < recordDescriptor.size(); i++)
     {
         length +=sizeof(short);//delimiter
-        if(recordDescriptor[i].Type == TypeInt)
+        if(recordDescriptor[i].type == TypeInt)
         {
             offset += recordDescriptor[i];
             length += recordDescriptor[i];
         }
-        else if(recordDescriptor[i].Type == TypeReal) 
+        else if(recordDescriptor[i].type == TypeReal) 
         {
             offset += recordDescriptor[i];
             length += recordDescriptor[i];
         }
-        else if(recordDescriptor[i].Type == TypeVarChar)     
+        else if(recordDescriptor[i].type == TypeVarChar)     
         {
             memcpy(&vCharLen, (*char)data + offset, sizeof(int));
             length += vCharLen;
@@ -215,19 +215,19 @@ RC RecordBasedFileManager::GetRecordFromData(const vector<Attribute> &recordDesc
 
     for(int i = 0; i < recordDescriptor.size(); i++)
     {
-        if(recordDescriptor[i].Type == TypeInt)
+        if(recordDescriptor[i].type == TypeInt)
         {
             memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(int));
             dataOffset   += sizeof(int);
             recordOffset += sizeof(int);
         }
-        else if(recordDescriptor[i].Type == TypeReal) 
+        else if(recordDescriptor[i].type == TypeReal) 
         {
             memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(float));
             dataOffset   += sizeof(float);
             recordOffset += sizeof(float);
         }
-        else if(recordDescriptor[i].Type == TypeVarChar)     
+        else if(recordDescriptor[i].type == TypeVarChar)     
         {
             memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(int));
             dataOffset += sizeof(int);
