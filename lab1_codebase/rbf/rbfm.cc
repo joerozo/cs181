@@ -52,7 +52,7 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
     void *record = malloc(recordLength);//allocating space for record
     GetRecordFromData(recordDescriptor, data, record);
 
-    char *page(char*)malloc(PAGE_SIZE);// allocating space for page
+    char *page = (char*)malloc(PAGE_SIZE);// allocating space for page
     if(fileHandle.readPage(rid.pageNum, page) == 0) //getting a copy of page
     {
         if(page == NULL)
