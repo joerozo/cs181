@@ -122,7 +122,33 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
     }
 }
 
-
+short RecordBasedFileManager::getRecordLength(const vector<Attribute> &recordDescriptor, const void *data)
+{
+    short length = 2*sizeof(short);//tombstone
+    int offset = 0;
+    int vCharLen  = 0;
+    for(int i = 0; i < recordDescriptor.size(); i++)
+    {
+        length +=sizeof(short);//delimiter
+        if(recordDescriptor[i].Type == TypeInt)
+        {
+            offset += recordDescriptor[i];
+            length += recordDescriptor[i];
+        }
+        else if(recordDescriptor[i].Type == TypeReal) 
+        {
+            offset += recordDescriptor[i];
+            length += recordDescriptor[i];
+        }
+        else if(recordDescriptor[i].Type == TypeVarChar)     
+        {
+            memcpy(&vCharLen, (*char)data + offset, sizeof(int));
+            length += vCharLen;
+            offset += vCharLen + sizeof(int);// length of char and the delimiter
+        }  
+    }
+    return length;
+}
 
 
 
