@@ -16,6 +16,19 @@ typedef struct
   unsigned slotNum; // slot number in the page
 } RID;
 
+//Hold the stats on the page
+typedef struct 
+{
+  short numberOfSlots;
+  short freeSpaceOffset; 
+}PageStats;
+
+//slots
+typedef struct $
+{
+  short length;
+  short offset; 
+}Slot;
 
 // Attribute
 typedef enum { TypeInt = 0, TypeReal, TypeVarChar } AttrType;

@@ -47,8 +47,56 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
 
     if(fileHandle.thefile == NULL)
         return result;
-    
 
+    int recordLength = getRecordLength(recordDescriptor, data);
+    void *record = malloc(recordLength);//allocating space for record
+    GetRecordFromData(recordDescriptor, data, record);
+
+    char *page(char*)malloc(PAGE_SIZE);// allocating space for page
+    if(fileHandle.readPage(rid.pageNum, page) == 0) //getting a copy of page
+    {
+        if(page == NULL)
+        {   
+            PageStats *stats;
+            Slot *slot;
+            stats->numberOfSlots = 1;
+            stats->freeSpaceOffset = recordLength+1;
+            slot->length = recordLength;
+            slot->0ffset = 0;
+            memmove(page, record, recordLength);
+            memmove(page + PAGE_SIZE -1 - sizeof(PageStats), stats, sizeof(PageStats));
+            memmove(page + PAGE_SIZE -1 - sizeof(PageStats)- sizeof(Slot), slot, sizeof(Slot));
+
+            if(fileHandle.writePage(rid.pageNum, page) == 0)
+                result = 0;
+            else
+                result = -1;
+
+        }
+        else
+        {
+            //get page stats
+            PageStats *stats = (PageStats*)page[PAGE_SIZE - 1 -sizeof(PageStats)];
+            short pageoffset = stats->freeSpaceOffset
+            //update page states
+            stats->freeSpaceOffset = pageoffset + recordLength +1;
+            stats->numberOfSlots++;
+            //create slot
+            Slot *newslot;
+            newslot->offset = pageoffset;
+            newslot->length = recordLength;
+
+            memmove(page + pageoffset, record, recordLength);
+            memmove(page + PAGE_SIZE -1 - sizeof(PageStats), stats, sizeof(PageStats));
+            memmove(page + PAGE_SIZE -1 - sizeof(PageStats)-stats->numberOfSlots*sizeof(Slot), slot, sizeof(Slot));
+
+
+        }
+
+
+    }
+    free(record);
+    free(page);
     return result;
 
 RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid, void *data) {
