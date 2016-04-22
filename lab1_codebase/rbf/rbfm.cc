@@ -234,9 +234,3 @@ RC RecordBasedFileManager::GetRecordFromData(const vector<Attribute> &recordDesc
 
     return 0;
 }
-
-
-
-
-
-
