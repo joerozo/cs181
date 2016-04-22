@@ -6,6 +6,9 @@
 #include <climits>
 
 #include "../rbf/pfm.h"
+#define intSize 4
+#define realSize 4
+#define stringSize 4
 
 using namespace std;
 

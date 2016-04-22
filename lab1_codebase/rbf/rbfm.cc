@@ -111,6 +111,7 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
             else{
                 cout << "Attribute: " << recordDescriptor[i].type() << "Real: NULL" << endl; 
             }    
+            break;
         }
         
     }
