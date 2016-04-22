@@ -77,7 +77,7 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
         {
             //get page stats
             PageStats *stats = (PageStats*)page[PAGE_SIZE - 1 -sizeof(PageStats)];
-            short pageoffset = stats->freeSpaceOffset
+            short pageoffset = stats->freeSpaceOffset;
             //update page states
             stats->freeSpaceOffset = pageoffset + recordLength +1;
             stats->numberOfSlots++;
@@ -88,7 +88,7 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
 
             memmove(page + pageoffset, record, recordLength);
             memmove(page + PAGE_SIZE -1 - sizeof(PageStats), stats, sizeof(PageStats));
-            memmove(page + PAGE_SIZE -1 - sizeof(PageStats)-stats->numberOfSlots*sizeof(Slot), slot, sizeof(Slot));
+            memmove(page + PAGE_SIZE -1 - sizeof(PageStats)-stats->numberOfSlots*sizeof(Slot),  sizeof(Slot));
 
 
         }
