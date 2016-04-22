@@ -107,12 +107,12 @@ RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const vector<Attri
     char *page = (char*)malloc(PAGE_SIZE);// allocating space for page
     int rc=-1;
     if (fileHandle.readPage(rid.pageNum, page)) {
-        pageStats stats;
+        PageStats stats;
         Slot slot;
         memcpy(&stats,  page + PAGE_SIZE - 1 -sizeof(PageStats), sizeof(PageStats));
         if (rid.slotNum <= stats.numberOfSlots){
-            memcpy(&slot, page + PAGE_SIZE - 1 - sizeof(PageStats) - rid.slotnums*sizeof(Slot), sizeof(Slot));
-            void *record = malloc(slot.length)); //create a record length of slot.length 
+            memcpy(&slot, page + PAGE_SIZE - 1 - sizeof(PageStats) - rid.slotNum*sizeof(Slot), sizeof(Slot));
+            void *record = malloc(slot.length); //create a record length of slot.length 
             memcpy(record, page + slot.offset, slot.length);
             //then decode the record - what does this mean?
             rc=0;
