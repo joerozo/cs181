@@ -76,7 +76,7 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
         }
         else
         {
-            //get page stats
+                        //get page stats
             PageStats stats;
             memcpy(&stats,  page + PAGE_SIZE - 1 -sizeof(PageStats), sizeof(PageStats));
             short pageoffset = stats.freeSpaceOffset;
@@ -84,16 +84,17 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
             stats.freeSpaceOffset = pageoffset + recordLength +1;
             stats.numberOfSlots++;
             //create slot
-            Slot *newslot;
-            newslot->offset = pageoffset;
-            newslot->length = recordLength;
- 
+            Slot newslot;
+            newslot.offset = pageoffset;
+            newslot.length = recordLength;
+            //pointer 
+            void *statsptr = &stats;
+            void *slotptr = &newslot;
+
             memmove(page + pageoffset, record, recordLength);
-            memmove(page + PAGE_SIZE -1 - sizeof(PageStats), stats, sizeof(PageStats));
-            memmove(page + PAGE_SIZE -1 - sizeof(PageStats)-stats->numberOfSlots*sizeof(Slot),  newslot,sizeof(Slot));
+            memmove(page + PAGE_SIZE -1 - sizeof(PageStats), statsptr, sizeof(PageStats));
+            memmove(page + PAGE_SIZE -1 - sizeof(PageStats)-stats.numberOfSlots*sizeof(Slot),  slotptr, sizeof(Slot));
         }
-
-
     }
     if(fileHandle.writePage(rid.pageNum, page) == 0)
         result = 0;
@@ -105,7 +106,22 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
 }
 
 RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid, void *data) {
-    return -1;
+    char *page = (char*)malloc(PAGE_SIZE);// allocating space for page
+    int rc=-1;
+    if (fileHandle.readPage(rid.pageNum, page)) {
+        PageStats stats;
+        Slot slot;
+        memcpy(&stats,  page + PAGE_SIZE - 1 -sizeof(PageStats), sizeof(PageStats));
+        if (rid.slotNum <= stats.numberOfSlots){
+            memcpy(&slot, page + PAGE_SIZE - 1 - sizeof(PageStats) - rid.slotNum*sizeof(Slot), sizeof(Slot));
+            void *record = malloc(slot.length); //create a record length of slot.length 
+            memcpy(record, page + slot.offset, slot.length);
+            //then decode the record - what does this mean?
+            rc=0;
+        }
+    }
+    free(page);
+    return rc;
 }
 /*int main ()
 {
@@ -185,19 +201,19 @@ short RecordBasedFileManager::getRecordLength(const vector<Attribute> &recordDes
     for(int i = 0; i < recordDescriptor.size(); i++)
     {
         length +=sizeof(short);//delimiter
-        if(recordDescriptor[i].Type == TypeInt)
+        if(recordDescriptor[i].type == TypeInt)
         {
-            offset += recordDescriptor[i];
-            length += recordDescriptor[i];
+            offset += recordDescriptor[i].length;
+            length += recordDescriptor[i].length;
         }
-        else if(recordDescriptor[i].Type == TypeReal) 
+        else if(recordDescriptor[i].type == TypeReal) 
         {
-            offset += recordDescriptor[i];
-            length += recordDescriptor[i];
+            offset += recordDescriptor[i].length;
+            length += recordDescriptor[i].length;
         }
-        else if(recordDescriptor[i].Type == TypeVarChar)     
+        else if(recordDescriptor[i].type == TypeVarChar)     
         {
-            memcpy(&vCharLen, (*char)data + offset, sizeof(int));
+            memcpy(&vCharLen, data + offset, sizeof(int));
             length += vCharLen;
             offset += vCharLen + sizeof(int);// length of char and the delimiter
         }  
@@ -215,23 +231,23 @@ RC RecordBasedFileManager::GetRecordFromData(const vector<Attribute> &recordDesc
 
     for(int i = 0; i < recordDescriptor.size(); i++)
     {
-        if(recordDescriptor[i].Type == TypeInt)
+        if(recordDescriptor[i].type == TypeInt)
         {
             memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(int));
             dataOffset   += sizeof(int);
             recordOffset += sizeof(int);
         }
-        else if(recordDescriptor[i].Type == TypeReal) 
+        else if(recordDescriptor[i].type == TypeReal) 
         {
             memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(float));
             dataOffset   += sizeof(float);
             recordOffset += sizeof(float);
         }
-        else if(recordDescriptor[i].Type == TypeVarChar)     
+        else if(recordDescriptor[i].type == TypeVarChar)     
         {
             memcpy((char*)record + recordOffset, (char*)data+ dataOffset, sizeof(int));
             dataOffset += sizeof(int);
-            memcpy(recordOffset, (*char)data + dataOffset, vCharLen);
+            memcpy((char*)record + recordOffset, (char*)data + dataOffset, vCharLen);
             dataOffset += vCharLen;
             recordOffset += vCharLen + sizeof(int);// length of char and the delimiter
         }  
