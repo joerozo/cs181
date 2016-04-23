@@ -1,5 +1,7 @@
 #include "rbfm.h"
 #include "pfm.h"
+#include <iostream>
+#include <vector>
 RecordBasedFileManager* RecordBasedFileManager::_rbf_manager = 0;
 
 RecordBasedFileManager* RecordBasedFileManager::instance()
@@ -125,58 +127,55 @@ Copies the values of num bytes from the location pointed to by source directly t
 #define realSize 4
 #define stringSize 4*/
 
+
 RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor, const void *data) {
-    return -1;
-}
-/*RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor, const void *data) {
     unsigned offset = 0;
     unsigned vcl;
     char* type_string; 
     int type_int;
     float type_real;
-
-    for(std::vector<Attribute>recordDescriptor::iterator c = recordDescriptor.begin(); c != recordDescriptor.end(); ++c, i++){
-        if(recordDescriptor.type() == TypeInt){
-            if(recordDescriptor.type() != NULL){
+    char* stringVal;
+    int i = 0;
+    for(i = 0; i < recordDescriptor.size(); i++){
+        if(recordDescriptor[i].type == TypeInt){
+            if(recordDescriptor[i].type != NULL){
                 memcpy(&type_int, ((char*) data + offset), intSize);
                 offset += intSize;
-                cout << "Attribute " << recordDescriptor[i].type() << " (integer): " << type_int << endl;
+                cout << "Attribute " << recordDescriptor[i].type << " (integer): " << type_int << endl;
             }
             else{
-                cout << "Attribute " << recordDescriptor[i].type() << " (integer): NULL " << endl;
+                cout << "Attribute " << recordDescriptor[i].type << " (integer): NULL " << endl;
             }
         break;
         }
-        else if(recordDescriptor.type() == TypeVarChar){
-            if(recordDescriptor.type() != NULL){
+        else if(recordDescriptor[i].type == TypeVarChar){
+            if(recordDescriptor[i].type != NULL){
                 memcpy(&vcl, ((char*) data + offset), stringSize);
                 offset += stringSize;
                 
                 stringVal = (char*) malloc(vcl + 1);
-                memcpy((void*) stringVal, ((char*) data + offset), vcl);
-                stringVal[vcl]="\0";
-                cout << "Attribute " << recordDescriptor[i].type() << " (VarChar): " << stringVal << endl;
+                memcpy(stringVal, ((char*) data + offset), vcl);
+                cout << "Attribute " << recordDescriptor[i].type << " (VarChar): " << stringVal << endl;
             }   
             else{
-                cout << "Attribute " << recordDescriptor[i].type() << " (VarChar): NULL " << endl;
+                cout << "Attribute " << recordDescriptor[i].type << " (VarChar): NULL " << endl;
             }     
         break;
         }
-        else if(recordDescriptor.type() == TypeReal){
-            if(recordDescriptor.type() != NULL){
-                memcpy(type_real, ((char*) data + offset), realSize);
+        else if(recordDescriptor[i].type == TypeReal){
+            if(recordDescriptor[i].type != NULL){
+                memcpy(&type_real, ((char*) data + offset), realSize);
                 offset += realSize;
-                cout << "Attribute: " << recordDescriptor[i].type() << "Real: " <<type_real << endl; 
+                cout << "Attribute: " << recordDescriptor[i].type << "Real: " <<type_real << endl; 
             }
             else{
-                cout << "Attribute: " << recordDescriptor[i].type() << "Real: NULL" << endl; 
+                cout << "Attribute: " << recordDescriptor[i].type << "Real: NULL" << endl; 
             }    
             break;
         }
         
     }
     }
-}*/
 
 short RecordBasedFileManager::getRecordLength(const vector<Attribute> &recordDescriptor, const void *data)
 {
