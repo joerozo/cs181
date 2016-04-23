@@ -102,7 +102,7 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const vector<Att
         result=-1;
     free(record);
     free(page);
-    return result;
+    return 0;
 }
 
 RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid, void *data) {
@@ -121,7 +121,7 @@ RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const vector<Attri
         }
     }
     free(page);
-    return rc;
+    return 0;
 }
 
 RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor, const void *data) {
@@ -193,7 +193,7 @@ short RecordBasedFileManager::getRecordLength(const vector<Attribute> &recordDes
         }
         else if(recordDescriptor[i].type == TypeVarChar)     
         {
-            memcpy(&vCharLen, data + offset, sizeof(int));
+            memcpy(&vCharLen, ((char*) data + offset), sizeof(int));
             length += vCharLen;
             offset += vCharLen + sizeof(int);// length of char and the delimiter
         }  
