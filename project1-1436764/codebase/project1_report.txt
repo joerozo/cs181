@@ -1,0 +1,25 @@
+1. Basic information
+Student ID of submitter: 1436764
+Student Name of submitter: Alix Feinsod
+Team number : 1
+
+Other members: Alec Reid, Joseph Rozo
+
+2. Internal Record Format
+- We couldn’t quite finish our record design because we couldn’t figure out what we could use as a delimiter. 
+- Describe how you store a VarChar field: First, copy the delimiter. Then increment the data offset. Copy the VarChar onto the free space of the page. Then add the length of the VarChar to the data offset. Finally, add the length of what was added to the total record offset variable. 
+
+
+3. Page Format
+- Show your page format design:
+Each page has PageStats, which tell the number of slots and the free space offset of the page. This is stored at the end of each page. Then before that, it has slots, which consist of a length and an offset for each slot. Each RID has a page number and slot number to find that record. The beginning of the file is where data is stored. FreeSpaceOffset keeps track of how far into the page the records go. 
+
+
+4. Implementation Detail
+We didn’t finish debugging our implementation because we ran out of time. Lesson learned, we should get code done on the first week and debug and test for the second week. 
+
+
+
+
+
+
