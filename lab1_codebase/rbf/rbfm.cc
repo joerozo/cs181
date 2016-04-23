@@ -123,26 +123,6 @@ RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const vector<Attri
     free(page);
     return rc;
 }
-/*int main ()
-{
-  std::vector<int> myvector;
-  for (int i=1; i<=5; i++) myvector.push_back(i);
-
-  std::cout << "myvector contains:";
-  for (std::vector<int>::iterator it = myvector.begin() ; it != myvector.end(); ++it)
-    std::cout << ' ' << *it;
-  std::cout << '\n';
-
-  return 0;
-}*/
-/*
-void * memcpy ( void * destination, const void * source, size_t num );
-Copy block of memory
-Copies the values of num bytes from the location pointed to by source directly to the memory block pointed to by destination.*/
-/*#define intSize 4
-#define realSize 4
-#define stringSize 4*/
-
 
 RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor, const void *data) {
     unsigned offset = 0;
