@@ -29,6 +29,8 @@ class RelationManager
 public:
   static RelationManager* instance();
 
+  RecordBasedFileManager rbfm;
+  
   RC createCatalog();
 
   RC deleteCatalog();

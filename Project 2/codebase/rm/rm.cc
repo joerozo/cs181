@@ -3,6 +3,8 @@
 
 RelationManager* RelationManager::_rm = 0;
 
+RecordBasedFileManager rbfm;
+
 RelationManager* RelationManager::instance()
 {
     if(!_rm)
