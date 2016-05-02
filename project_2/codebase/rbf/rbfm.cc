@@ -221,6 +221,57 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
 
     return SUCCESS;
 }
+/******************************************************************
+*   Description: this function is very similair to read record and insert record an merged version
+*   Logic:
+*       If(data is at the end)
+*           if(new_data fit in page)
+*               delete 
+                insert
+*           else
+*               remove data
+*               add reference to new page
+*           end if
+*       else
+*           if(size(new_data) == size(old_data))
+*               just copy over data
+*           else if(size(new_data) < size(old_data)) 
+*               Just copy data into slot then update slot
+*               move other data closer
+*           else
+*               if(new_data fits in page)
+*                   move slot after it the difference
+*                   then move data in
+*               else
+*                   remove data then add reference and update page               
+*           endif
+*       end if
+*******************************************************************/
+RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const void *data, const RID &rid)
+{
+
+    void* original_data;
+    // Gets the size of the record.
+    unsigned recordSize = getRecordSize(recordDescriptor, data);
+
+    // Cycles through pages looking for enough free space for the new entry.
+    void *pageData = malloc(PAGE_SIZE);
+    if (pageData == NULL)
+        return RBFM_MALLOC_FAILED;
+
+    // Checks if the specific slot id exists in the page
+    SlotDirectoryHeader slotHeader = getSlotDirectoryHeader(pageData);
+    if(slotHeader.recordEntriesNumber < rid.slotNum)
+        return RBFM_SLOT_DN_EXIST;
+
+    // Gets the slot directory record entry data
+    SlotDirectoryRecordEntry recordEntry = getSlotDirectoryRecordEntry(pageData, rid.slotNum);
+
+    // Retrieve the actual entry data
+    getRecordAtOffset(pageData, recordEntry.offset, recordDescriptor, original_data);
+
+    
+}
 
 // Private helper methods
 
