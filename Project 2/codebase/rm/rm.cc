@@ -4,6 +4,7 @@
 RelationManager* RelationManager::_rm = 0;
 
 RecordBasedFileManager rbfm;
+PagedFileManager *RecordBasedFileManager::_pf_manager = NULL;
 
 RelationManager* RelationManager::instance()
 {
@@ -33,7 +34,22 @@ RC RelationManager::deleteCatalog()
 
 RC RelationManager::createTable(const string &tableName, const vector<Attribute> &attrs)
 {
-    return -1;
+    int rc=-1;
+    rc=rbfm->createFile(tableName);
+    if (rc=0) {
+      //scan through Tables to get number of this table
+      //create data using that number, "tableName", "TableName"
+      RID rid =0;
+      rc=insertTuple("Tables", data, rid);
+      int columnCount=1;
+      for (attr : attrs) {
+         //create data using the same number as above, attr->name, attr->type, attr->length, columnCount
+        RID rid =0;
+        rc=insertTuple("Columns", data, rid);
+        columnCount ++;
+      }
+    }
+    return rc;
 }
 
 RC RelationManager::deleteTable(const string &tableName)
@@ -62,7 +78,16 @@ RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &at
 
 RC RelationManager::insertTuple(const string &tableName, const void *data, RID &rid)
 {
-    return -1;
+    rc=-1;
+    FileHandle handle;
+    rc=_pf_manager->openFile(tableName.c_str(), handle));
+    if(rc=0){
+      RID rid=0;
+      vector<Attribute> recordDiscriptor;
+      getAttributes(tableName, recordDiscriptor);
+      rc=rbfm->insertRecord(handle, recordDescriptor, data, rid);
+    }
+    return rc;
 }
 
 RC RelationManager::deleteTuple(const string &tableName, const RID &rid)
@@ -81,7 +106,14 @@ RC RelationManager::updateTuple(const string &tableName, const void *data, const
 
 RC RelationManager::readTuple(const string &tableName, const RID &rid, void *data)
 {
-    return -1;
+    rc= -1;
+    FileHandle handle;
+    rc=_pf_manager->openFile(tableName.c_str(), handle));
+    if(rc=0){
+      vector<Attribute> recordDiscriptor;
+      getAttributes(tableName, recordDiscriptor);
+      rc=rbfm->readRecord(handle, crecordDescriptor, rid, data);
+    return rc;
 }
 
 RC RelationManager::printTuple(const vector<Attribute> &attrs, const void *data)
@@ -101,7 +133,16 @@ RC RelationManager::scan(const string &tableName,
       const vector<string> &attributeNames,
       RM_ScanIterator &rm_ScanIterator)
 {
-    return -1;
+  int rc=-1;
+  FileHandle handle;
+  rc=_pf_manager->openFile(tableName.c_str(), handle));
+  if(rc=0){
+    vector<Attribute> recordDiscriptor;
+    getAttributes(tableName, recordDiscriptor);
+    RBFM_ScanIterator rbfm_ScanIterator;
+    rc=rbfm->scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rbfm_ScanIterator);
+  }  
+  return rc;
 }
 
 
