@@ -57,23 +57,30 @@ RC RelationManager::deleteTable(const string &tableName)
     return -1;
 }
 
+bool RelationManager::file_exists(string &tableName){
+  if (FILE *file = fopen(tableName.c_str(), "r")) {
+        fclose(file);
+        return true;
+    } else {
+        return false;
+    }   
+}
+
 RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &attrs)
 {
-  if(tableName.compare(tables.tbl)==0||tableName.compare(columns.tbl)==0){ // tables.tbl should refer to current instantiation of table 
-    attrs =  table.tbl.attributes ; // attrs needs to be set to current tables' attributes --> idk if I am doing this right?
-    cout<< "Successfully Returned Attributes";
-    return 1;
-  }else{
-    return -1;
-  }
+  FileHandle handle;
+  rc=-1; 
+  const vector<Attribute> descriptor = attrs;
 
-  // Need to iterate through columns
-  FileHandle fh;
-  FILE * table_file = fopen(tables.tbl.c_str(), "r+");
-
-  if(table_file == NULL) {
-    cout << "Failed to open file" << endl;
+/*
+  i need the scan() and the iterator right here. I can scan through and iterate through
+*/
+  if(file_exists(tableName)==true){
+    rbfm->openFile(fileName, handle);
+    RC RecordBasedFileManager::openFile(const string &fileName, FileHandle &fileHandle)
   }
+  cout<<"Error tableName does not exist" <<endl;
+  return -1;
 }
 
 RC RelationManager::insertTuple(const string &tableName, const void *data, RID &rid)
