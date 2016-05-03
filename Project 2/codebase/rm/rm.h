@@ -71,6 +71,8 @@ protected:
 
 private:
   static RelationManager *_rm;
+  vector<Attribute> table_descriptor; 
+  vector<Attribute> column_descriptor;
 };
 
 #endif

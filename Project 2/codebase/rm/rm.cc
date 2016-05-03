@@ -14,8 +14,91 @@ RelationManager* RelationManager::instance()
   return _rm;
 }
 
+
+/*
+
+
+
+
+Tables
+(1, "Tables", "Tables")
+(2, "Columns", "Columns") (3, "Employee", "Employee")
+Columns
+(1, "table-id", TypeInt, 4 , 1)
+(1, "table-name", TypeVarChar, 50, 2) (1, "file-name", TypeVarChar, 50, 3) (2, "table-id", TypeInt, 4, 1)
+(2, "column-name", TypeVarChar, 50, 2) (2, "column-type", TypeInt, 4, 3)
+(2, "column-length", TypeInt, 4, 4)
+(2, "column-position", TypeInt, 4, 5) (3, "empname", TypeVarChar, 30, 1)
+(3, "age", TypeInt, 4, 2)
+(3, "height", TypeReal, 4, 3)
+(3, "salary", TypeInt, 4, 4)
+
+
+  Tables (table-id:int, table-name:varchar(50), file-name:varchar(50))
+Columns(table-id:int, column-name:varchar(50), column-type:int, column-length:int, column-position:int)
+
+*/
+
 RelationManager::RelationManager()
 {
+
+  vector<Attribute> table_descriptor;    // table vector holds table-id:int, table-name:varchar(50), file-name:varchar(50)
+  vector<Attribute> column_descriptor;   // column vector holds table-id:int, column-name:varchar(50), column-type:int, column-length:int, column-position:int)
+
+
+  //Initialize all the table attributes//
+  Attribute table_id;
+  table_id.name = "table-id";
+  table_id.type = TypeInt;
+  table_id.length = INT_SIZE;
+
+  Attribute table_name;
+  table_name.name = "table-name";
+  table_name.type = TypeVarChar;
+  table_name.length = 50;
+
+  Attribute table_fileName;
+  table_fileName.name = "file-name";
+  table_fileName.type = TypeVarChar;
+  table_fileName.length = 50; 
+
+  //Initialize all the column attributes//
+  Attribute column_table_id;
+  column_table_id.name = "table-id"; 
+  column_table_id.type = TypeInt;
+  column_table_id.length = INT_SIZE;
+
+  Attribute column_name;
+  column_name.name = "column-name";
+  column_name.type = TypeVarChar;
+  column_name.length = 50;
+
+  Attribute column_type;
+  column_type.name = "column-type";
+  column_type.type = TypeInt;
+  column_type.length = INT_SIZE;
+
+  Attribute column_length;
+  column_length.name = "column-length";
+  column_length.type = TypeInt;
+  column_length.length = INT_SIZE;
+
+  Attribute column_position;
+  column_position.name = "column-position";
+  column_position.type = TypeInt;
+  column_position.length = INT_SIZE;
+
+  //push into vector table_descriptor all of the attributes//
+  table_descriptor.push_back(table_id);
+  table_descriptor.push_back(table_name);
+  table_descriptor.push_back(table_fileName);
+
+  //push into vector column_descriptor all of the attributes//
+  column_descriptor.push_back(column_table_id);
+  column_descriptor.push_back(column_name);
+  column_descriptor.push_back(column_type);
+  column_descriptor.push_back(column_length);
+  column_descriptor.push_back(column_position);
 }
 
 RelationManager::~RelationManager()
@@ -82,31 +165,37 @@ The general flow of this method will be:
 6. Clean up the files and iterators you've opened
 
 */
+
+int get_tableId(){
+
+
+}
+
+while(rmsi.getNextTuple(rid, returnedData) != RM_EOF)
+
 RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &attrs)
 {
+  RM_ScanIterator rmsi;
+  int tableId = 0;
   rc=-1;
   FileHandle handle; 
   const vector<Attribute> recordDescriptor = attrs;
   const vector<string> result = NULL;
-  rc=_pf_manager->openFile(tableName.c_str(), handle));  
+  rc =rbfm->openFile(tableName.c_str(), handle);  
   void comp;
 
   int columnCount = 0;
   // need scan_iterator//
-  iterator = scan(handle, recordDescriptor, "tableName", comp, result, scan_iterator);
-  if(tuple_result == NULL){
-    cout<< tableName << "Was not valid" << endl;
-  }
+  RC iterator = scan(handle, recordDescriptor, "tableName", comp, result, rmsi);
 
-  
+  assert(iterator == success && "RelationManager::scan() should not fail.");
 
-  const void iterator =  scan(handle, );
   if(file_exists(tableName)==true){
-    while (tableName != EOF){
-      recordDescriptor = 
+    while(rmsi.getNextTuple(rid, returnedData) != RM_EOF){
+      RC v = iterator.getNextRecord(tableId, handle);
+      recordDescriptor = (Attributes)v;
     }
-
-
+    return recordDescriptor;
   }
   cout<<"Error tableName does not exist" <<endl;
   return -1;
