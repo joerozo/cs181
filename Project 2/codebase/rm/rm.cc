@@ -65,20 +65,35 @@ bool RelationManager::file_exists(string &tableName){
     return false;
   }   
 }
+/*
 
+
+For handling the file io, you don't need to manually mess with FILE*s anymore. Instead, you can use RBFM's openFile() method, and it will handle all of the lower level stuff for you.
+
+Check out rm_test12.cc for an example of how to use the iterator. Essentially, you make an iterator, you initialize it with scan, and then you use getNextTuple() in a loop to iterate over it.
+
+The general flow of this method will be:
+
+1. Get the tableID of the table with the name tableName (you may want to make a helper function for this).
+2. Make a file handle and use rbfm.openFile() to open the file holding the columns table
+3. Make an RBFM_ScanIterator and use rbfm.scan() to initialize it. Point it at the columns table and use the tableID you got in step one. It may be helpful to hardcode the recordDescriptor vector for the columns table.
+4. Repeatedly call the getNextRecord() method of your iterator to read in all of the columns with a tableID equal to the one you got in step 1.
+5. Take all of the columns you get this way and convert this into Attributes and push them onto the back of the attrs struct
+6. Clean up the files and iterators you've opened
+
+*/
 RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &attrs)
 {
-
-  FileHandle handle;
-  rc=-1; 
-  FILE * table = fopen(tableName.c_str(), "r+");
+  rc=-1;
+  FileHandle handle; 
   const vector<Attribute> recordDescriptor = attrs;
   const vector<string> result = NULL;
+  rc=_pf_manager->openFile(tableName.c_str(), handle));  
   void comp;
 
   int columnCount = 0;
   // need scan_iterator//
-  tuple_result = scan(handle, recordDescriptor, "tableName", comp, result, scan_iterator);
+  iterator = scan(handle, recordDescriptor, "tableName", comp, result, scan_iterator);
   if(tuple_result == NULL){
     cout<< tableName << "Was not valid" << endl;
   }
