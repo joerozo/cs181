@@ -223,6 +223,8 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
 }
 /******************************************************************
 *   Description: this function is very similair to read record and insert record an merged version
+*   Setup:
+*       Get old_data
 *   Logic:
 *       If(data is at the end)
 *           if(new_data fit in page)
@@ -250,27 +252,46 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
 RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const void *data, const RID &rid)
 {
 
-    void* original_data;
-    // Gets the size of the record.
-    unsigned recordSize = getRecordSize(recordDescriptor, data);
+    void * pageData = malloc(PAGE_SIZE);
+    signed int delta_size;
+    vector<void*> pageRecData
+    vector<SlotDirectoryRecordEntry> recordEntries;
 
-    // Cycles through pages looking for enough free space for the new entry.
-    void *pageData = malloc(PAGE_SIZE);
-    if (pageData == NULL)
-        return RBFM_MALLOC_FAILED;
+    // Retrieve the specific page
+    if (fileHandle.readPage(rid.pageNum, pageData))
+        return RBFM_READ_FAILED;
 
     // Checks if the specific slot id exists in the page
     SlotDirectoryHeader slotHeader = getSlotDirectoryHeader(pageData);
     if(slotHeader.recordEntriesNumber < rid.slotNum)
         return RBFM_SLOT_DN_EXIST;
 
-    // Gets the slot directory record entry data
-    SlotDirectoryRecordEntry recordEntry = getSlotDirectoryRecordEntry(pageData, rid.slotNum);
+    //read all records from
+    for(unsigned i =1; i <= slotHeader.recordEntriesNumber; i++)
+    {
+        void* recData;
+        // Gets the slot directory record entry data
+        SlotDirectoryRecordEntry recordEntry = getSlotDirectoryRecordEntry(pageData, i);
+        // Retrieve the actual entry data
+        getRecordAtOffset(pageData, recordEntry.offset, recordDescriptor, recData);
+        //Add Data to vector
+        pageRecData.push_back(recData);
+        //Add Slot info to vector
+        recordEntries.push_back(recordEntry);
+    }    
 
-    // Retrieve the actual entry data
-    getRecordAtOffset(pageData, recordEntry.offset, recordDescriptor, original_data);
+    //Check that updated_data will fit in page
+    freespace  = sizeof(slotHeader); 
+    freespace += sizeof(SlotDirectoryRecordEntry) * slotHeader.recordEntriesNumber;
+    for(int i = 0; i < recordEntries.size(); i++)
+    {
+        freespace += recordEntries[i].length;
+    }
 
-    
+    if(delta_freespace > 0)
+    {
+        
+    }
 }
 
 // Private helper methods
