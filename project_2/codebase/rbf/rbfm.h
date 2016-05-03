@@ -70,6 +70,7 @@ typedef struct SlotDirectoryRecordEntry
     int32_t offset;
 } SlotDirectoryRecordEntry;
 
+
 typedef SlotDirectoryRecordEntry* SlotDirectory;
 
 typedef uint16_t ColumnOffset;
