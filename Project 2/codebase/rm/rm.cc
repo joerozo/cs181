@@ -363,8 +363,15 @@ RC RelationManager::createDataForColumns(int32_t table_id, const string &columnN
     offset_in_data+=sizeof(NameSize);
     memcpy(data+offset_in_data, tableName.c_str(), nameSize);
     offset_in_data+=nameSize);
-    //next field
-
+    //next field, type
+    memcpy(data+offset_in_data, type, sizeof(int32_t));
+    offset_in_data+=sizeof(int32_t);
+    //next field, length
+    memcpy(data+offset_in_data, length, sizeof(int32_t));
+    offset_in_data+=sizeof(int32_t);
+    //next field, position
+    memcpy(data+offset_in_data, position, sizeof(int32_t));
+    return 0;
 }
 
 
