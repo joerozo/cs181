@@ -253,9 +253,11 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Att
 {
 
     void * pageData = malloc(PAGE_SIZE);
-    signed int delta_size;
+    signed int space;
+    signed int freespace;
     vector<void*> pageRecData
     vector<SlotDirectoryRecordEntry> recordEntries;
+    unsigned int offset = 0;
 
     // Retrieve the specific page
     if (fileHandle.readPage(rid.pageNum, pageData))
@@ -267,7 +269,7 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Att
         return RBFM_SLOT_DN_EXIST;
 
     //read all records from
-    for(unsigned i =1; i <= slotHeader.recordEntriesNumber; i++)
+    for(unsigned i =0; i < slotHeader.recordEntriesNumber; i++)
     {
         void* recData;
         // Gets the slot directory record entry data
@@ -280,17 +282,47 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Att
         recordEntries.push_back(recordEntry);
     }    
 
-    //Check that updated_data will fit in page
-    freespace  = sizeof(slotHeader); 
-    freespace += sizeof(SlotDirectoryRecordEntry) * slotHeader.recordEntriesNumber;
+    //Check that updated_data will fit in page and update vector data and offset
+    space  = sizeof(slotHeader); 
+    space += sizeof(SlotDirectoryRecordEntry) * slotHeader.recordEntriesNumber;
+
     for(int i = 0; i < recordEntries.size(); i++)
     {
-        freespace += recordEntries[i].length;
+        if(rid.slotNum == i)
+        {
+            pageRecData[i] = data;
+            recordEntries[i].length = getRecordSize(recordDescriptor,data)
+        }
+        recordEntries[i].offset = offset;
+        space += recordEntries[i].length;
+        offset += recordEntries[i].length;        
     }
+    //calculating freespace
+    freespace = PAGE_SIZE - space
+    //update getSlotDirectoryHeader
+    slotHeader.freeSpaceOffset = PAGE_SIZE - offset;
 
-    if(delta_freespace > 0)
+    if(freespace > 0)
     {
-        
+        for(int i = 0; i < recordEntries.size(); i++)
+        {
+            //adding record
+            memcpy(page+recordEntries[i].offset, pageRecData,recordEntries[i].length);
+            //slot offset
+            unsigned slotOffset = PAGE_SIZE - sizeof(SlotDirectoryHeader)-(i+1) * sizeof(SlotDirectoryRecordEntry);
+            //updating slot
+            memcpy(page+slotOffset,recordEntries[i],sizeof(SlotDirectoryRecordEntry))           
+        }
+
+        //Updating SlotDirectoryHeader
+        memcpy(page+PAGE_SIZE-sizeof(SlotDirectoryHeader), SlotDirectoryHeader,sizeof(SlotDirectoryHeader));   
+        //writing to page
+
+    }
+    else
+    {
+
+
     }
 }
 
