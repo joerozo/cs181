@@ -16,7 +16,7 @@ class RM_ScanIterator {
 public:
   RM_ScanIterator() {};
   ~RM_ScanIterator() {};
-
+  RBFM_ScanIterator rbfm_iterator;
   // "data" follows the same format as RelationManager::insertTuple()
   RC getNextTuple(RID &rid, void *data) { return RM_EOF; };
   RC close() { return -1; };
@@ -73,6 +73,8 @@ private:
   static RelationManager *_rm;
   vector<Attribute> table_descriptor; 
   vector<Attribute> column_descriptor;
+  RC createDataForTables(int table_id, const string &tableName, const void *data);
+  RC createDataForColumns(int table_id, const string &columnName, int type, int length, int position, const void *data);
 };
 
 #endif

@@ -120,8 +120,47 @@ RC RelationManager::createTable(const string &tableName, const vector<Attribute>
   int rc=-1;
   rc=rbfm->createFile(tableName);
   if (rc=0) {
-      //scan through Tables to get number of this table
-      //create data using that number, "tableName", "TableName"
+      //create data using tableCount, "tableName", "TableName"
+    const void *data;
+    int32_t offset_in_data;
+    int8_t nullind=0;
+    //put null indicator into data
+    memcpy(data, &nullind, 1);
+    offset_in_data++;
+    //Scan through tables to find the maximum existing table number
+    RBFM_ScanIterator rbfmsi;
+    FileHandle handle;
+    rc=_pf_manager->openFile(tableName.c_str(), handle));
+    vector<string> attrs;
+    attrs.push_back("table-id");
+    /*RC rc = rbfm->scan(handle, "table-id", NO_OP, NULL, attrs, rmsi);
+    RID rid;
+    void *returnedData = malloc(2000);
+    int32_t maxTable=0;
+    int32_t currentTable;
+    while(rmsi.getNextTuple(rid, returnedData) != RM_EOF) {
+      memcpy(&currentTable, returnedData+sizeof(int8_t), sizeof(int32_t));
+      if (currentTable > maxTable) {
+        maxTable=currentTable;
+      }
+    }
+    rmsi.close();*/ //translate to rbfm scanner
+    maxTable++;
+    //put first field, which is the table number, into data. 
+    memcpy(data+offset_in_data, &maxTable, sizeof(int32_t));
+    offset_in_data+=sizeof(int32_t);
+    //next field
+    int32_t nameSize = tableName.length();
+    memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+    offset_in_data+=sizeof(NameSize);
+    memcpy(data+offset_in_data, tableName.c_str(), nameSize);
+    offset_in_data+=nameSize);
+    //next field
+    memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+    offset_in_data+=sizeof(NameSize);
+    memcpy(data+offset_in_data, tableName.c_str(), nameSize);
+    offset_in_data+=nameSize);
+
     RID rid =0;
     rc=insertTuple("Tables", data, rid);
     int columnCount=1;
@@ -281,10 +320,51 @@ RC RelationManager::scan(const string &tableName,
 if(rc=0){
   vector<Attribute> recordDiscriptor;
   getAttributes(tableName, recordDiscriptor);
-  RBFM_ScanIterator rbfm_ScanIterator;
   rc=rbfm->scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rbfm_ScanIterator);
 }  
 return rc;
+}
+}
+
+RC RelationManager::createDataForTables(int32_t table_id, const string &tableName, const void *data){
+    int32_t offset_in_data;
+    int8_t nullind=0;
+    //put null indicator into data
+    memcpy(data, &nullind, 1);
+    offset_in_data++;
+    //put first field, which is the table number, into data. 
+    memcpy(data+offset_in_data, &table_id, sizeof(int32_t));
+    offset_in_data+=sizeof(int32_t);
+    //next field, table name
+    int32_t nameSize = tableName.length();
+    memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+    offset_in_data+=sizeof(NameSize);
+    memcpy(data+offset_in_data, tableName.c_str(), nameSize);
+    offset_in_data+=nameSize);
+    //next field, name again
+    memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+    offset_in_data+=sizeof(NameSize);
+    memcpy(data+offset_in_data, tableName.c_str(), nameSize);
+    offset_in_data+=nameSize);
+}
+
+RC RelationManager::createDataForColumns(int32_t table_id, const string &columnName, int32_t type, int32_t length, int32_t position, const void *data) {
+    int32_t offset_in_data;
+    int8_t nullind=0;
+    //put null indicator into data
+    memcpy(data, &nullind, 1);
+    offset_in_data++;
+    //put first field, which is the table number, into data. 
+    memcpy(data+offset_in_data, &table_id, sizeof(int32_t));
+    offset_in_data+=sizeof(int32_t);
+    //next field, column name
+    int32_t nameSize = columnName.length();
+    memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+    offset_in_data+=sizeof(NameSize);
+    memcpy(data+offset_in_data, tableName.c_str(), nameSize);
+    offset_in_data+=nameSize);
+    //next field
+
 }
 
 
