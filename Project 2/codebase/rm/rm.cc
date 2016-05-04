@@ -47,58 +47,58 @@ RelationManager::RelationManager()
 
 
   //Initialize all the table attributes//
-  Attribute table_id;
-  table_id.name = "table-id";
-  table_id.type = TypeInt;
-  table_id.length = INT_SIZE;
+Attribute table_id;
+table_id.name = "table-id";
+table_id.type = TypeInt;
+table_id.length = INT_SIZE;
 
-  Attribute table_name;
-  table_name.name = "table-name";
-  table_name.type = TypeVarChar;
-  table_name.length = 50;
+Attribute table_name;
+table_name.name = "table-name";
+table_name.type = TypeVarChar;
+table_name.length = 50;
 
-  Attribute table_fileName;
-  table_fileName.name = "file-name";
-  table_fileName.type = TypeVarChar;
-  table_fileName.length = 50; 
+Attribute table_fileName;
+table_fileName.name = "file-name";
+table_fileName.type = TypeVarChar;
+table_fileName.length = 50; 
 
   //Initialize all the column attributes//
-  Attribute column_table_id;
-  column_table_id.name = "table-id"; 
-  column_table_id.type = TypeInt;
-  column_table_id.length = INT_SIZE;
+Attribute column_table_id;
+column_table_id.name = "table-id"; 
+column_table_id.type = TypeInt;
+column_table_id.length = INT_SIZE;
 
-  Attribute column_name;
-  column_name.name = "column-name";
-  column_name.type = TypeVarChar;
-  column_name.length = 50;
+Attribute column_name;
+column_name.name = "column-name";
+column_name.type = TypeVarChar;
+column_name.length = 50;
 
-  Attribute column_type;
-  column_type.name = "column-type";
-  column_type.type = TypeInt;
-  column_type.length = INT_SIZE;
+Attribute column_type;
+column_type.name = "column-type";
+column_type.type = TypeInt;
+column_type.length = INT_SIZE;
 
-  Attribute column_length;
-  column_length.name = "column-length";
-  column_length.type = TypeInt;
-  column_length.length = INT_SIZE;
+Attribute column_length;
+column_length.name = "column-length";
+column_length.type = TypeInt;
+column_length.length = INT_SIZE;
 
-  Attribute column_position;
-  column_position.name = "column-position";
-  column_position.type = TypeInt;
-  column_position.length = INT_SIZE;
+Attribute column_position;
+column_position.name = "column-position";
+column_position.type = TypeInt;
+column_position.length = INT_SIZE;
 
   //push into vector table_descriptor all of the attributes//
-  table_descriptor.push_back(table_id);
-  table_descriptor.push_back(table_name);
-  table_descriptor.push_back(table_fileName);
+table_descriptor.push_back(table_id);
+table_descriptor.push_back(table_name);
+table_descriptor.push_back(table_fileName);
 
   //push into vector column_descriptor all of the attributes//
-  column_descriptor.push_back(column_table_id);
-  column_descriptor.push_back(column_name);
-  column_descriptor.push_back(column_type);
-  column_descriptor.push_back(column_length);
-  column_descriptor.push_back(column_position);
+column_descriptor.push_back(column_table_id);
+column_descriptor.push_back(column_name);
+column_descriptor.push_back(column_type);
+column_descriptor.push_back(column_length);
+column_descriptor.push_back(column_position);
 }
 
 RelationManager::~RelationManager()
@@ -166,16 +166,31 @@ The general flow of this method will be:
 
 */
 
-int get_tableId(){
+int get_tableId(tableName){
 
+  String name = tableName; // --> convert tableName to data format with null-indicator at end of string // 
+  FileHandle handle;       // --> rbfm FileHandle handle = rbfm -> openFile(table_descriptor);
+  RC h = openFile(table_descriptor, handle);
+  assert(h==0 && "openFile Success");
+  rbfm->RBFM_ScanIterator rmsi;
 
+  RC rc = rbfm->scan(handle, table_descriptor, "table-name", EQ_OP, name, rmsi);
+  //allocate memory to data_pointer for getNextRecord
+  RID id = 0;
+  RC result =  rmsi.getNextRecord(id, data_pointer);
+  return data_pointer; //parse result in data_pointer --> will return bytes (int is 4 bytes long) --> ask alix//
 }
-
-while(rmsi.getNextTuple(rid, returnedData) != RM_EOF)
 
 RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &attrs)
 {
+
+  int tid = get_tableId(tableName);
+  String colName = col
+  const vector<Attribute> td = table_descriptor;
+  FileHandle handle;
   RM_ScanIterator rmsi;
+  RC iterator = scan(handle, recordDescriptor, "tableName", comp, result, rmsi);
+
   int tableId = 0;
   rc=-1;
   FileHandle handle; 
@@ -183,6 +198,8 @@ RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &at
   const vector<string> result = NULL;
   rc =rbfm->openFile(tableName.c_str(), handle);  
   void comp;
+
+  //after getting table_id do a scan but with the columns_table and table_id//
 
   int columnCount = 0;
   // need scan_iterator//
