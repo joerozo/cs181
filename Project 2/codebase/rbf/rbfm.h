@@ -197,6 +197,10 @@ private:
 
   void setRecordAtOffset(void *page, unsigned offset, const vector<Attribute> &recordDescriptor, const void *data);
   void getRecordAtOffset(void *record, unsigned offset, const vector<Attribute> &recordDescriptor, void *data);
+
+  bool performCompOpInt(const CompOp compOp, int currentAttribute, int value);
+  bool performCompOpFloat(const CompOp compOp, float currentAttribute, float value);
+  bool performCompOpString(const CompOp compOp, string currentAttribute, string value);
 };
 
 #endif
