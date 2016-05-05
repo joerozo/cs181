@@ -462,3 +462,72 @@ void RecordBasedFileManager::getRecordAtOffset(void *page, unsigned offset, cons
         data_offset += fieldSize;
     }
 }
+
+RC RecordBasedFileManager::scan(FileHandle &fileHandle,
+      const vector<Attribute> &recordDescriptor,
+      const string &conditionAttribute,
+      const CompOp compOp,                  // comparision type such as "<" and "="
+      const void *value,                    // used in the comparison
+      const vector<string> &attributeNames, // a list of projected attributes
+      RBFM_ScanIterator &rbfm_ScanIterator) {
+    //set all values of scan iterator to these given values
+    rbfm_ScanIterator->fileHandle = fileHandle;
+    rbfm_ScanIterator->recordDescriptor = recordDescriptor;
+    rbfm_ScanIterator->conditionAttribute=conditionAttribute;
+    rbfm_ScanIterator->compOp=compOp;
+    rbfm_ScanIterator->value=value;
+    rbfm_ScanIterator->attributeNames=attributeNames;
+    rbfm_ScanIterator->currentPage=0;
+    rbfm_ScanIterator->currentSlot=0;
+}
+
+ RC RBFM_ScanIterator::getNextRecord(RID &rid, void *data) { 
+    int totPages = fileHandle->getNumberOfPages();
+    //if we are past last page, we are done
+    if (currentPage>=totPages) {
+        return RBFM_EOF;
+    }
+    //if we are past the last record on this page, go to next page
+    //how to get number of records? 
+    //allocate page size memory, read page into that, call SlotDirectoryHeader header = getSlotDirectoryHeader(void * page);
+    //get header->recordEntriesNumber
+    int totSlots;
+    if (currentSlot>=totRecords) {
+        currentSlot=0;
+        currentPage++;
+        return getNextRecord(rid, data);
+    }
+    void *currentAttribute = malloc(PAGE_SIZE);
+    RecordBasedFileManager rbfm = RecordBasedFileManager::instance();
+    //create new RID currentrid using current slot and current page
+    //check if current record has been incremented or moved
+    int RC=rbfm->readAttribute(fileHandle, recordDescriptor, currentrid, conditionAttribute, currentAttribute);
+    if (RC=0) {
+        //3 cases: find type of value. Can be int, float, or string. Convert currentAttribute to that type. 
+        //make a utility function for comparing those types. Need to evaluate compop and do 
+        //actual comparison
+        if(currentAttribute compOp value) {
+        //use get null indicator size method
+            //offset
+            for (attr: attributeName) {
+                //get that attribute using read attribute
+                //if null, set corresponding bit of nullindicator accordingly
+                //else, if string, write string length then value
+                //else, write value
+                //increment offset
+            }
+            return RC;
+        }
+        else {
+            currentSlot++;
+            return getNextRecord(rid, data);
+        }
+    }
+    return RC;
+}
+
+ RC RBFM_ScanIterator::close() { return -1; };
+
+
+
+

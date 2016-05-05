@@ -120,13 +120,7 @@ RC RelationManager::createTable(const string &tableName, const vector<Attribute>
   int rc=-1;
   rc=rbfm->createFile(tableName);
   if (rc=0) {
-      //create data using tableCount, "tableName", "TableName"
     const void *data;
-    int32_t offset_in_data;
-    int8_t nullind=0;
-    //put null indicator into data
-    memcpy(data, &nullind, 1);
-    offset_in_data++;
     //Scan through tables to find the maximum existing table number
     RBFM_ScanIterator rbfmsi;
     FileHandle handle;
@@ -146,26 +140,13 @@ RC RelationManager::createTable(const string &tableName, const vector<Attribute>
     }
     rmsi.close();*/ //translate to rbfm scanner
     maxTable++;
-    //put first field, which is the table number, into data. 
-    memcpy(data+offset_in_data, &maxTable, sizeof(int32_t));
-    offset_in_data+=sizeof(int32_t);
-    //next field
-    int32_t nameSize = tableName.length();
-    memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
-    offset_in_data+=sizeof(NameSize);
-    memcpy(data+offset_in_data, tableName.c_str(), nameSize);
-    offset_in_data+=nameSize);
-    //next field
-    memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
-    offset_in_data+=sizeof(NameSize);
-    memcpy(data+offset_in_data, tableName.c_str(), nameSize);
-    offset_in_data+=nameSize);
-
     RID rid =0;
+    rc= createDataForTables(maxTable, &tableName, data);
     rc=insertTuple("Tables", data, rid);
     int columnCount=1;
     for (attr : attrs) {
-         //create data using the same number as above, attr->name, attr->type, attr->length, columnCount
+      const void *data;
+      createDataForColumns(maxTable, attr->name, attr->type, attr->length, columnCount, data);
       RID rid =0;
       rc=insertTuple("Columns", data, rid);
       columnCount ++;
