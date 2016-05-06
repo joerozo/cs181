@@ -206,27 +206,59 @@ The general flow of this method will be:
 */
 
 int get_tableId(tableName){
+  char null_indicator = 0;
+  int32_tlen = tableName.length();
 
-  String name = tableName; // --> convert tableName to data format with null-indicator at end of string // 
+  const vector<Attribute> nameVector;
+  String name = tableName.c_str(); // --> convert tableName to data format with null-indicator at end of string // 
+  nameVector = name;
+
+  tN = malloc(55);
+  memcpy(tN, &null_indicator, 1);
+  memcpy(tN + 1, &int32_tlen, 1);
+  memcpy(tN + 5, tableName.c_str(), tableName.length());
+
   FileHandle handle;       // --> rbfm FileHandle handle = rbfm -> openFile(table_descriptor);
+  tD = openFile("table", handle);
   RC h = openFile(table_descriptor, handle);
   assert(h==0 && "openFile Success");
   rbfm->RBFM_ScanIterator rmsi;
 
-  RC rc = rbfm->scan(handle, table_descriptor, "table-name", EQ_OP, name, rmsi);
+  RC rc = rbfm->scan(handle, table_descriptor, "table-name", EQ_OP, tN, nameVector, rmsi);
   //allocate memory to data_pointer for getNextRecord
   RID id = 0;
-  RC result =  rmsi.getNextRecord(id, data_pointer);
-  return data_pointer; //parse result in data_pointer --> will return bytes (int is 4 bytes long) --> ask alix//
+  data_pointer =  malloc(55);
+
+  RC r =  rmsi.getNextRecord(id, data_pointer);
+ /*
+  int tid; 
+  memcpy(&tid, data_pointer + 1, 4);
+  return tid; 
+ */
+
+  return data_pointer;
 }
 
 RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &attrs)
 {
 
-  int tid = get_tableId(tableName);
-  String colName = col
-  const vector<Attribute> td = table_descriptor;
   FileHandle handle;
+  int rid = get_tableId(tableName);
+  RID = 1;
+  data = malloc(PAGE_SIZE);
+  int i = 0;
+  RC colVal = openFile("column", handle);                         /* create catalog should hold column values == column*/
+  while(rmsi.getNextRecord(RID, data) != RM_EOF){             // use malloc to get memory PAGE_SIZE bytes of memory //
+    string col_name = colVal.at(i).name;                           /* create attrbiute with type name, type, length*/
+    unsigned char* col_type = new unsigned char[66];               /* pushBack() attribute into vector attr*/ //(, "empname", TypeVarChar, 30,3 1)
+    
+    attrs.push_back();                                             // put colVal attributes into vector attr //
+    attrs.push_back();                                             // parse attributes before putting in attr//
+    attrs.push_back();                                
+  }
+
+  const vector<Attribute> td = table_descriptor;
+  
   RM_ScanIterator rmsi;
   RC iterator = scan(handle, recordDescriptor, "tableName", comp, result, rmsi);
 
