@@ -251,13 +251,12 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
 *******************************************************************/
 RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const void *data, const RID &rid)
 {
-
     void * pageData = malloc(PAGE_SIZE);
     signed int space;
     signed int freespace;
     vector<void*> pageRecData
     vector<SlotDirectoryRecordEntry> recordEntries;
-    unsigned int offset = 0;
+    unsigned int recordOffset = PAGE_SIZE;
 
     // Retrieve the specific page
     if (fileHandle.readPage(rid.pageNum, pageData))
@@ -293,37 +292,46 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Att
             pageRecData[i] = data;
             recordEntries[i].length = getRecordSize(recordDescriptor,data)
         }
-        recordEntries[i].offset = offset;
-        space += recordEntries[i].length;
-        offset += recordEntries[i].length;        
+        space += recordEntries[i].length;     
     }
     //calculating freespace
     freespace = PAGE_SIZE - space
     //update getSlotDirectoryHeader
-    slotHeader.freeSpaceOffset = PAGE_SIZE - offset;
 
     if(freespace > 0)
     {
         for(int i = 0; i < recordEntries.size(); i++)
         {
+            unsigned int length = recordEntries[i].length
+            recordOffset -= length;
+            recordEntries[i].offset = recordOffset
             //adding record
-            memcpy(page+recordEntries[i].offset, pageRecData,recordEntries[i].length);
+            memcpy(page+recordEntries[i].offset, pageRecData,length);
             //slot offset
-            unsigned slotOffset = PAGE_SIZE - sizeof(SlotDirectoryHeader)-(i+1) * sizeof(SlotDirectoryRecordEntry);
+            unsigned slotOffset = sizeof(SlotDirectoryHeader)+ i* sizeof(SlotDirectoryRecordEntry);
             //updating slot
             memcpy(page+slotOffset,recordEntries[i],sizeof(SlotDirectoryRecordEntry))           
         }
 
         //Updating SlotDirectoryHeader
-        memcpy(page+PAGE_SIZE-sizeof(SlotDirectoryHeader), SlotDirectoryHeader,sizeof(SlotDirectoryHeader));   
+        slotHeader.freeSpaceOffset = recordOffset;
+        memcpy(page, SlotDirectoryHeader,sizeof(SlotDirectoryHeader));   
         //writing to page
+        if (fileHandle.writePage(i, pageData))
+        {
 
+            free(pageData);
+            return RBFM_WRITE_FAILED;
+        }
     }
     else
     {
-
-
+        free(pageData);
+        return insertRecord(fileHandle, recordDescriptor, data, rid)
     }
+
+    free(pageData);
+    return SUCCESS;
 }
 
 // Private helper methods

@@ -462,3 +462,296 @@ void RecordBasedFileManager::getRecordAtOffset(void *page, unsigned offset, cons
         data_offset += fieldSize;
     }
 }
+
+RC RecordBasedFileManager::scan(FileHandle &fileHandle,
+      const vector<Attribute> &recordDescriptor,
+      const string &conditionAttribute,
+      const CompOp compOp,                  // comparision type such as "<" and "="
+      const void *value,                    // used in the comparison
+      const vector<string> &attributeNames, // a list of projected attributes
+      RBFM_ScanIterator &rbfm_ScanIterator) {
+    //set all values of scan iterator to these given values
+    rbfm_ScanIterator->fileHandle = fileHandle;
+    rbfm_ScanIterator->recordDescriptor = recordDescriptor;
+    rbfm_ScanIterator->conditionAttribute=conditionAttribute;
+    rbfm_ScanIterator->compOp=compOp;
+    rbfm_ScanIterator->value=value;
+    rbfm_ScanIterator->attributeNames=attributeNames;
+    rbfm_ScanIterator->currentPage=0;
+    rbfm_ScanIterator->currentSlot=0;
+}
+
+ RC RBFM_ScanIterator::getNextRecord(RID &rid, void *data) { 
+    int totPages = fileHandle->getNumberOfPages();
+    //if we are past last page, we are done
+    if (currentPage>=totPages) {
+        return RBFM_EOF;
+    }
+    //if we are past the last record on this page, go to next page
+    void *thepage = malloc(PAGE_SIZE);
+    fileHandle->readPage(currentPage, thepage);
+    SlotDirectoryHeader header =rbfm->getSlotDirectoryHeader(thepage);
+    int totSlots = header->recordEntriesNumber;
+    if (currentSlot>=totRecords) {
+        currentSlot=0;
+        currentPage++;
+        return getNextRecord(rid, data);
+    }
+    void *currentAttribute = malloc(PAGE_SIZE);
+    RecordBasedFileManager rbfm = RecordBasedFileManager::instance();
+    //create new RID currentrid using current slot and current page
+    //check if current record has been incremented or moved
+    int RC=rbfm->readAttribute(fileHandle, recordDescriptor, currentrid, conditionAttribute, currentAttribute);
+    if (RC=0) {
+        //get attribute type of condition attribute
+        AttrType currentType;
+        for (Attribute attr: recordDescriptor) {
+            if (attr->name == conditionAttribute) {
+                currentType=attr->type;
+            }
+        }
+        bool result;
+        switch(currentType) {
+            case TypeInt :
+                int catt;
+                catt = (int) currentAttribute;
+                result = rbfm->performCompOpInt(compOp, catt, value);
+                break;
+            case TypeReal :
+                float catt;
+                catt=(float) currentAttribute;
+                result = rbfm->performCompOpFloat(compOp, catt, value);
+                break;
+            case TypeVarChar :
+                string catt;
+                catt= (string) currentAttribute;
+                result=rbfm->performCompOpString(compOp, catt, calue);
+                break;
+        }
+        if(result==true) {
+            //get null indicator size
+            int nullIndicatorSize=rbfm->getNullIndicatorSize(attributeNames.size());
+            char nullIndicator[nullIndicatorSize] = 0;
+            // create offset
+            int32_t offset=0;
+            //put null indicator into data
+            memcpy(data, &nullIndicator, nullIndicatorSize);
+            offset+=nullIndicatorSize;
+            //i is used to see which # attribute we're on 
+            int i=0;
+            for (attr: attributeNames) {
+                void *thisatt;
+                int RC=rbfm->readAttribute(fileHandle, recordDescriptor, currentrid, attr, thisatt);
+                //check if it's not null
+                if (thisatt) {
+                    //get type
+                    //get attribute type of current attribute
+                    AttrType thisType;
+                    for (Attribute allatts: recordDescriptor) {
+                        if (allatts->name == attr) {
+                            thisType=allatts->type;
+                        }
+                    }
+                    //switch on type
+                    switch(thisType) {
+                        case TypeInt :
+                            memcpy(data+offset, thisatt, sizeof(int32_t));
+                            offset+=sizeof(int32_t);
+                            break;
+                        case TypeReal :
+                            memcpy(data+offset, thisatt, sizeof(float));
+                            offset+=sizeof(float);
+                            break;
+                        case TypeVarChar :
+                            int32_t stringSize = thisatt.length();
+                            memcpy(data+offset, &stringSize, sizeof(stringSize);
+                            offset+=sizeof(stringSize);
+                            memcpy(data+offset, thisatt.c_str(), stringSize);
+                            offset+=stringSize);
+                            break;
+                    }
+                }
+                else {
+                    //write nullindicator corresponding bit to be null
+                    int indicatorIndex = (i+1) / CHAR_BIT;
+                    int indicatorMask  = 1 << (CHAR_BIT - 1 - (i % CHAR_BIT));
+                    nullIndicator[indicatorIndex] |= indicatorMask;
+                    // Write out null indicator
+                    memcpy(data, nullIndicator, nullIndicatorSize);
+                }
+                i++;
+            }
+            return RC;
+        }
+        else {
+            currentSlot++;
+            return getNextRecord(rid, data);
+        }
+    }
+}
+
+ RC RBFM_ScanIterator::close() { return 0; };
+
+ bool RecordBasedFileManager::performCompOpInt(const CompOp compOp, int currentAttribute, int value) {
+    bool result = false;
+    switch(compOp){
+    case NO_OP  :
+       result = true;
+       return result;
+       break; 
+    case EQ_OP  :
+       if (currentAttribute=value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case LT_OP  :
+       if (currentAttribute<value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case LE_OP  :
+       if (currentAttribute<=value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case GT_OP  :
+       if (currentAttribute>value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case GE_OP  :
+       if (currentAttribute>=value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break;
+    case NE_OP  :
+       if (currentAttribute!=value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break;
+    }
+    
+ }
+
+  bool RecordBasedFileManager::performCompOpFloat(const CompOp compOp, float currentAttribute, float value) {
+    bool result = false;
+    switch(compOp){
+    case NO_OP  :
+       result = true;
+       return result;
+       break; 
+    case EQ_OP  :
+       if (currentAttribute=value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case LT_OP  :
+       if (currentAttribute<value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case LE_OP  :
+       if (currentAttribute<=value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case GT_OP  :
+       if (currentAttribute>value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case GE_OP  :
+       if (currentAttribute>=value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break;
+    case NE_OP  :
+       if (currentAttribute!=value) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break;
+    }
+}
+
+  bool RecordBasedFileManager::performCompOpString(const CompOp compOp, string currentAttribute, string value) {
+     bool result = false;
+     int compared = currentAttribute.compare(value);
+     switch(compOp){
+    case NO_OP  :
+       result = true;
+       return result;
+       break; 
+    case EQ_OP  :
+       if (compared ==0) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case LT_OP  :
+       if (compared>0) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case LE_OP  :
+       if (compared>=0) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case GT_OP  :
+       if (compared<0) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break; 
+    case GE_OP  :
+       if (compared<=0) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break;
+    case NE_OP  :
+       if (compared !=0) {
+        result=true;
+        return result;
+       }
+       else return result;
+       break;
+    }
+    
+
+  }
+
+
+
+

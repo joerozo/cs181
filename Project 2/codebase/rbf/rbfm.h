@@ -96,7 +96,14 @@ class RBFM_ScanIterator {
 public:
   RBFM_ScanIterator() {};
   ~RBFM_ScanIterator() {};
-
+  FileHandle &fileHandle;
+  const vector<Attribute> &recordDescriptor;
+  const string &conditionAttribute;
+  const CompOp compOp;                
+  const void *value;                  
+  const vector<string> &attributeNames;
+  int currentPage;
+  int currentSlot;
   // Never keep the results in the memory. When getNextRecord() is called, 
   // a satisfying record needs to be fetched from the file.
   // "data" follows the same format as RecordBasedFileManager::insertRecord().
@@ -190,6 +197,10 @@ private:
 
   void setRecordAtOffset(void *page, unsigned offset, const vector<Attribute> &recordDescriptor, const void *data);
   void getRecordAtOffset(void *record, unsigned offset, const vector<Attribute> &recordDescriptor, void *data);
+
+  bool performCompOpInt(const CompOp compOp, int currentAttribute, int value);
+  bool performCompOpFloat(const CompOp compOp, float currentAttribute, float value);
+  bool performCompOpString(const CompOp compOp, string currentAttribute, string value);
 };
 
 #endif
