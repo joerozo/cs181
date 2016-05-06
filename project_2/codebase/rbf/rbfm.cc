@@ -221,34 +221,7 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
 
     return SUCCESS;
 }
-/******************************************************************
-*   Description: this function is very similair to read record and insert record an merged version
-*   Setup:
-*       Get old_data
-*   Logic:
-*       If(data is at the end)
-*           if(new_data fit in page)
-*               delete 
-                insert
-*           else
-*               remove data
-*               add reference to new page
-*           end if
-*       else
-*           if(size(new_data) == size(old_data))
-*               just copy over data
-*           else if(size(new_data) < size(old_data)) 
-*               Just copy data into slot then update slot
-*               move other data closer
-*           else
-*               if(new_data fits in page)
-*                   move slot after it the difference
-*                   then move data in
-*               else
-*                   remove data then add reference and update page               
-*           endif
-*       end if
-*******************************************************************/
+
 RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const void *data, const RID &rid)
 {
     void * pageData = malloc(PAGE_SIZE);
@@ -296,10 +269,11 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Att
     }
     //calculating freespace
     freespace = PAGE_SIZE - space
-    //update getSlotDirectoryHeader
-
-    if(freespace > 0)
+    
+    //Checking if there is free space
+    if(freespace >= 0)
     {
+        recordOffset = PAGE_SIZE;
         for(int i = 0; i < recordEntries.size(); i++)
         {
             unsigned int length = recordEntries[i].length
@@ -308,14 +282,12 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Att
             //adding record
             memcpy(page+recordEntries[i].offset, pageRecData,length);
             //slot offset
-            unsigned slotOffset = sizeof(SlotDirectoryHeader)+ i* sizeof(SlotDirectoryRecordEntry);
-            //updating slot
-            memcpy(page+slotOffset,recordEntries[i],sizeof(SlotDirectoryRecordEntry))           
+            setSlotDirectoryRecordEntry(page, i, recordEntries[i]);          
         }
 
         //Updating SlotDirectoryHeader
         slotHeader.freeSpaceOffset = recordOffset;
-        memcpy(page, SlotDirectoryHeader,sizeof(SlotDirectoryHeader));   
+        setSlotDirectoryHeader(page, slotHeader);
         //writing to page
         if (fileHandle.writePage(i, pageData))
         {
@@ -326,8 +298,44 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Att
     }
     else
     {
-        free(pageData);
-        return insertRecord(fileHandle, recordDescriptor, data, rid)
+        RID refRID;
+        recordOffset = PAGE_SIZE;
+        unsigned result = insertRecord(fileHandle, recordDescriptor, data, refRID)
+        if(result != SUCCESS)
+        {
+            free(pageData);
+            return result;
+        }
+        else
+        {
+            for(int i = 0; i < recordEntries.size(); i++)
+            {
+                if(i == rid.Slot)
+                {
+                    recordEntries[i].offset = -1;
+                    recordEntries[i].length = sizeof(RID);
+                    recordOffset -= recordEntries[i].length;
+                    memcpy(page+recordOffset, &refRID, recordEntries[i].length);
+                }
+                else
+                {
+                    recordOffset -= recordEntries[i].length;
+                    recordEntries[i].offset = recordOffset;
+                    memcpy(page+recordOffset, pageRecData[i], recordEntries[i].length);
+                }
+            }
+
+            //Updating SlotDirectoryHeader
+            slotHeader.freeSpaceOffset = recordOffset;
+            setSlotDirectoryHeader(page, slotHeader);
+            //writing to page
+            if (fileHandle.writePage(i, pageData))
+            {
+
+            free(pageData);
+            return RBFM_WRITE_FAILED;
+            }
+        }
     }
 
     free(pageData);
