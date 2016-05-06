@@ -463,6 +463,70 @@ void RecordBasedFileManager::getRecordAtOffset(void *page, unsigned offset, cons
     }
 }
 
+RC RecordBasedFileManager::getAttributeType(){
+
+}
+
+/*
+RC readAttribute(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid, const string attributeName, void *data)
+Given a record descriptor, read a specific attribute of a record identified by a given rid.*/
+/*(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid, void *data) returns SUCCESS*/
+/* types int real varchar*/
+/* attributes have a .name right ???*/
+RC RecordBasedFileManager::readAttribute(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid, const string attributeName, void *data){
+  void* record_desc = malloc(PAGE_SIZE);  
+  int stringSize = 0;
+  unsigned offset = 0;
+  unsigned offsetType = NULL;
+  if (readRecord(fileHandle, recordDescriptor, rid, record_desc) != 1){
+    return -1;
+    cout << "invalid entry" << endl;
+  }
+  /* x gets attribute of recordDescriptor[i]*/
+  for(int i = 0; i < recordDescriptor.size(); i++){
+    Attribute x = recordDescriptor[i];
+    bool get_offset_type = true;
+    /* this while loop stores the attribute type in offsetType so we know of what type the attribute is*/
+    while(get_offset_type){
+        if(x.type == TypeVarChar){
+            offsetType = VARCHAR_LENGTH_SIZE;
+            get_offset_type = false;
+        } 
+        else if(x.type == TypeInt){
+            offsetType = TypeInt;
+            get_offset_type = false;
+        }else{
+            offsetType = TypeReal;
+            get_offset_type = false;
+        }
+    }
+
+    /* if Attribute x.name == attributeName we just store the attribute (this is what we were looking for) and don't increment the offset */
+    if(x.name == attributeName){
+        if(offsetType ==  TypeInt){
+            memcpy(data, (char*)record_desc + offsetType, INT_SIZE);
+        }else if(offsetType == TypeVarChar){
+            memcpy(&stringSize, (char*)record_desc + offset), VARCHAR_LENGTH_SIZE);
+            memcpy(data, (char*)record_desc + offset, stringSize + VARCHAR_LENGTH_SIZE);
+        }else if(offsetType == TypeReal){
+            memcpy(data, (char*)record_desc + offset, REAL_SIZE);
+        }
+    }
+    /* if Attribute x.name != attributeName we need to increment the offset by the appropriate amount and then return 
+    to beginning of loop and check recordDescriptor[i++] all over but with incremented offset*/
+    if(offsetType == TypeInt){
+        offset += INT_SIZE;
+    }else if(offsetType == TypeReal){
+        offset += REAL_SIZE;
+    }else if(offsetType == TypeVarChar){
+        memcpy(&stringSize, (char*)record_desc + offset), VARCHAR_LENGTH_SIZE);
+        offset += VARCHAR_LENGTH_SIZE;
+    }
+    break;
+  }
+  return data; 
+}
+
 RC RecordBasedFileManager::scan(FileHandle &fileHandle,
       const vector<Attribute> &recordDescriptor,
       const string &conditionAttribute,
