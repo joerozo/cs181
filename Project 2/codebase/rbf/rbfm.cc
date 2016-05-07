@@ -222,6 +222,126 @@ RC RecordBasedFileManager::printRecord(const vector<Attribute> &recordDescriptor
     return SUCCESS;
 }
 
+RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const void *data, const RID &rid)
+{
+    void * pageData = malloc(PAGE_SIZE);
+    signed int space;
+    signed int freespace;
+    vector<void*> pageRecData
+    vector<SlotDirectoryRecordEntry> recordEntries;
+    unsigned int recordOffset = PAGE_SIZE;
+
+    // Retrieve the specific page
+    if (fileHandle.readPage(rid.pageNum, pageData))
+        return RBFM_READ_FAILED;
+
+    // Checks if the specific slot id exists in the page
+    SlotDirectoryHeader slotHeader = getSlotDirectoryHeader(pageData);
+    if(slotHeader.recordEntriesNumber < rid.slotNum)
+        return RBFM_SLOT_DN_EXIST;
+
+    //read all records from
+    for(unsigned i =0; i < slotHeader.recordEntriesNumber; i++)
+    {
+        void* recData;
+        // Gets the slot directory record entry data
+        SlotDirectoryRecordEntry recordEntry = getSlotDirectoryRecordEntry(pageData, i);
+        // Retrieve the actual entry data
+        getRecordAtOffset(pageData, recordEntry.offset, recordDescriptor, recData);
+        //Add Data to vector
+        pageRecData.push_back(recData);
+        //Add Slot info to vector
+        recordEntries.push_back(recordEntry);
+    }    
+
+    //Check that updated_data will fit in page and update vector data and offset
+    space  = sizeof(slotHeader); 
+    space += sizeof(SlotDirectoryRecordEntry) * slotHeader.recordEntriesNumber;
+
+    for(int i = 0; i < recordEntries.size(); i++)
+    {
+        if(rid.slotNum == i)
+        {
+            pageRecData[i] = data;
+            recordEntries[i].length = getRecordSize(recordDescriptor,data)
+        }
+        space += recordEntries[i].length;     
+    }
+    //calculating freespace
+    freespace = PAGE_SIZE - space
+    
+    //Checking if there is free space
+    if(freespace >= 0)
+    {
+        recordOffset = PAGE_SIZE;
+        for(int i = 0; i < recordEntries.size(); i++)
+        {
+            unsigned int length = recordEntries[i].length
+            recordOffset -= length;
+            recordEntries[i].offset = recordOffset
+            //adding record
+            memcpy(page+recordEntries[i].offset, pageRecData,length);
+            //slot offset
+            setSlotDirectoryRecordEntry(page, i, recordEntries[i]);          
+        }
+
+        //Updating SlotDirectoryHeader
+        slotHeader.freeSpaceOffset = recordOffset;
+        setSlotDirectoryHeader(page, slotHeader);
+        //writing to page
+        if (fileHandle.writePage(i, pageData))
+        {
+
+            free(pageData);
+            return RBFM_WRITE_FAILED;
+        }
+    }
+    else
+    {
+        RID refRID;
+        recordOffset = PAGE_SIZE;
+        unsigned result = insertRecord(fileHandle, recordDescriptor, data, refRID)
+        if(result != SUCCESS)
+        {
+            free(pageData);
+            return result;
+        }
+        else
+        {
+            for(int i = 0; i < recordEntries.size(); i++)
+            {
+                if(i == rid.Slot)
+                {
+                    recordEntries[i].offset = -1;
+                    recordEntries[i].length = sizeof(RID);
+                    recordOffset -= recordEntries[i].length;
+                    memcpy(page+recordOffset, &refRID, recordEntries[i].length);
+                }
+                else
+                {
+                    recordOffset -= recordEntries[i].length;
+                    recordEntries[i].offset = recordOffset;
+                    memcpy(page+recordOffset, pageRecData[i], recordEntries[i].length);
+                }
+            }
+
+            //Updating SlotDirectoryHeader
+            slotHeader.freeSpaceOffset = recordOffset;
+            setSlotDirectoryHeader(page, slotHeader);
+            //writing to page
+            if (fileHandle.writePage(i, pageData))
+            {
+
+            free(pageData);
+            return RBFM_WRITE_FAILED;
+            }
+        }
+    }
+
+    free(pageData);
+    return SUCCESS;
+}
+
 // Private helper methods
 
 // Configures a new record based page, and puts it in "page".

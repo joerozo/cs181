@@ -26,6 +26,8 @@ RelationManager::~RelationManager()
 
 RC RelationManager::createCatalog()
 {
+
+  _rm.createFile("tables.tbl");
   return -1;
 }
 
