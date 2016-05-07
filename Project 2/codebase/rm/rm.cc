@@ -299,12 +299,29 @@ RC RelationManager::deleteTuple(const string &tableName, const RID &rid)
   return -1;
 }
 
+/*
+This method updates a tuple identified by the specified rid. Note: if the tuple grows (i.e., the size of the tuple increases) and there 
+is no space in the page to store the tuple (after the update), then the tuple is migrated to a new page with enough free space. Since you
+ will implement an index structure (e.g., B-tree) in Project 3, tuples are identified by their rids and when they migrate, you must 
+ leave a forwarding address behind identifying the new location of the tuple. Also, each time a tuple is updated and becomes smaller, 
+ you need to compact the underlying page. That is, keep the free space in the middle of the page -- the slot table should be at one 
+ end of the page, the tuple data area should be at the other end, and the free space should be in the middle. Again, the structure 
+ for *data is the same as for insertRecord().
+Return an error if a table called tableName does not exist. Also return a (different) error if there is no tuple with the specified rid.
+updateRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const void *data, const RID &rid)
+*/
 RC RelationManager::updateTuple(const string &tableName, const void *data, const RID &rid)
 {
-  FileHandle update;
-  FILE * updateTuple = fopen(tables.tbl.c_str(), "r+");
-
-  vector<Attributes> tableAttrs;
+    vector<Attribute> recordDiscriptor;
+    getAttributes(tableName, recordDiscriptor);
+    rc=rbfm->readRecord(handle, crecordDescriptor, rid, data);
+  FileHandle handle;
+  RC update_tuple = openFile(tableName.c_str(), handle);
+  const vector <Attribute> descriptor;
+  getAttributes(tableName, descriptor);
+  if(updateRecord(handle, handle, descriptor, data, rid) == SUCCESS){
+    return 1;
+  }
   return -1;
 }
 
