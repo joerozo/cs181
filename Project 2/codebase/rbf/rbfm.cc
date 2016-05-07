@@ -342,6 +342,70 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const vector<Att
     return SUCCESS;
 }
 
+RC deleteRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const RID &rid) {
+    void * pageData = malloc(PAGE_SIZE);
+    signed int space;
+    signed int freespace;
+    vector<void*> pageRecData
+    vector<SlotDirectoryRecordEntry> recordEntries;
+    unsigned int recordOffset = PAGE_SIZE;
+
+    // Retrieve the specific page
+    if (fileHandle.readPage(rid.pageNum, pageData))
+        return RBFM_READ_FAILED;
+
+    // Checks if the specific slot id exists in the page
+    SlotDirectoryHeader slotHeader = getSlotDirectoryHeader(pageData);
+    if(slotHeader.recordEntriesNumber < rid.slotNum)
+        return RBFM_SLOT_DN_EXIST;
+
+    //read all records from
+    for(unsigned i =0; i < slotHeader.recordEntriesNumber; i++)
+    {
+        void* recData;
+        // Gets the slot directory record entry data
+        SlotDirectoryRecordEntry recordEntry = getSlotDirectoryRecordEntry(pageData, i);
+        // Retrieve the actual entry data
+        getRecordAtOffset(pageData, recordEntry.offset, recordDescriptor, recData);
+        //Add Data to vector
+        pageRecData.push_back(recData);
+        //Add Slot info to vector
+        recordEntries.push_back(recordEntry);
+    }    
+     for(int i = 0; i < recordEntries.size(); i++)
+            {
+                if(i == rid.Slot)
+                {
+                    recordEntries[i].offset = -2;
+                    recordEntries[i].length = 0;
+                    recordOffset -= recordEntries[i].length;
+                }
+                else
+                {
+                    recordOffset -= recordEntries[i].length;
+                    recordEntries[i].offset = recordOffset;
+                    memcpy(page+recordOffset, pageRecData[i], recordEntries[i].length);
+                }
+            }
+
+            //Updating SlotDirectoryHeader
+            slotHeader.freeSpaceOffset = recordOffset;
+            slotHeader.recordEntriesNumber--;
+            setSlotDirectoryHeader(page, slotHeader);
+            //writing to page
+            if (fileHandle.writePage(i, pageData))
+            {
+
+            free(pageData);
+            return RBFM_WRITE_FAILED;
+            }
+        }
+    }
+
+    free(pageData);
+    return SUCCESS;
+}
+
 // Private helper methods
 
 // Configures a new record based page, and puts it in "page".
