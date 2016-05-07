@@ -47,58 +47,58 @@ RelationManager::RelationManager()
 
 
   //Initialize all the table attributes//
-  Attribute table_id;
-  table_id.name = "table-id";
-  table_id.type = TypeInt;
-  table_id.length = INT_SIZE;
+Attribute table_id;
+table_id.name = "table-id";
+table_id.type = TypeInt;
+table_id.length = INT_SIZE;
 
-  Attribute table_name;
-  table_name.name = "table-name";
-  table_name.type = TypeVarChar;
-  table_name.length = 50;
+Attribute table_name;
+table_name.name = "table-name";
+table_name.type = TypeVarChar;
+table_name.length = 50;
 
-  Attribute table_fileName;
-  table_fileName.name = "file-name";
-  table_fileName.type = TypeVarChar;
-  table_fileName.length = 50; 
+Attribute table_fileName;
+table_fileName.name = "file-name";
+table_fileName.type = TypeVarChar;
+table_fileName.length = 50; 
 
   //Initialize all the column attributes//
-  Attribute column_table_id;
-  column_table_id.name = "table-id"; 
-  column_table_id.type = TypeInt;
-  column_table_id.length = INT_SIZE;
+Attribute column_table_id;
+column_table_id.name = "table-id"; 
+column_table_id.type = TypeInt;
+column_table_id.length = INT_SIZE;
 
-  Attribute column_name;
-  column_name.name = "column-name";
-  column_name.type = TypeVarChar;
-  column_name.length = 50;
+Attribute column_name;
+column_name.name = "column-name";
+column_name.type = TypeVarChar;
+column_name.length = 50;
 
-  Attribute column_type;
-  column_type.name = "column-type";
-  column_type.type = TypeInt;
-  column_type.length = INT_SIZE;
+Attribute column_type;
+column_type.name = "column-type";
+column_type.type = TypeInt;
+column_type.length = INT_SIZE;
 
-  Attribute column_length;
-  column_length.name = "column-length";
-  column_length.type = TypeInt;
-  column_length.length = INT_SIZE;
+Attribute column_length;
+column_length.name = "column-length";
+column_length.type = TypeInt;
+column_length.length = INT_SIZE;
 
-  Attribute column_position;
-  column_position.name = "column-position";
-  column_position.type = TypeInt;
-  column_position.length = INT_SIZE;
+Attribute column_position;
+column_position.name = "column-position";
+column_position.type = TypeInt;
+column_position.length = INT_SIZE;
 
   //push into vector table_descriptor all of the attributes//
-  table_descriptor.push_back(table_id);
-  table_descriptor.push_back(table_name);
-  table_descriptor.push_back(table_fileName);
+table_descriptor.push_back(table_id);
+table_descriptor.push_back(table_name);
+table_descriptor.push_back(table_fileName);
 
   //push into vector column_descriptor all of the attributes//
-  column_descriptor.push_back(column_table_id);
-  column_descriptor.push_back(column_name);
-  column_descriptor.push_back(column_type);
-  column_descriptor.push_back(column_length);
-  column_descriptor.push_back(column_position);
+column_descriptor.push_back(column_table_id);
+column_descriptor.push_back(column_name);
+column_descriptor.push_back(column_type);
+column_descriptor.push_back(column_length);
+column_descriptor.push_back(column_position);
 }
 
 RelationManager::~RelationManager()
@@ -107,7 +107,7 @@ RelationManager::~RelationManager()
 
 RC RelationManager::createCatalog()
 {
-  vector<Attribute> t
+  vector<Attribute> t;
 
   if(rbfm->createFile("Tables") == Success)
   {
@@ -119,10 +119,25 @@ RC RelationManager::createCatalog()
   }
   return SUCCESS;
 }
+ /* delete the "Table" and "Column" tables */
+
+RC PagedFileManager::destroyFile(const string &fileName)
+{
+  if(!file_exists(fileName)){
+    cout<< "Error: File does not exist";
+    return -1;
+  }else{
+    remove(fileName.c_str());
+    return 0;
+  }
+}
 
 RC RelationManager::deleteCatalog()
 {
-  return -1;
+  if(PagedFileManager->destroyFile(&Tables)!= SUCCESS||PagedFileManager->destroyFile(&table_descriptor)!= SUCCESS||PagedFileManager->destroyFile(&column_descriptor)){
+    return -1;
+  }
+  return SUCCESS;
 }
 
 RC RelationManager::createTable(const string &tableName, const vector<Attribute> &attrs)
@@ -135,8 +150,8 @@ RC RelationManager::createTable(const string &tableName, const vector<Attribute>
     RBFM_ScanIterator rbfmsi;
     FileHandle handle;
     rc=_pf_manager->openFile(tableName.c_str(), handle));
-    vector<string> attrs;
-    attrs.push_back("table-id");
+vector<string> attrs;
+attrs.push_back("table-id");
     /*RC rc = rbfm->scan(handle, "table-id", NO_OP, NULL, attrs, rmsi);
     RID rid;
     void *returnedData = malloc(2000);
@@ -242,7 +257,7 @@ RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &at
   while(rmsi.getNextRecord(RID, data) != RM_EOF){             // use malloc to get memory PAGE_SIZE bytes of memory //
     string col_name = colVal.at(i).name;                           /* create attrbiute with type name, type, length*/
     unsigned char* col_type = new unsigned char[66];               /* pushBack() attribute into vector attr*/ //(, "empname", TypeVarChar, 30,3 1)
-    
+
     attrs.push_back();                                             // put colVal attributes into vector attr //
     attrs.push_back();                                             // parse attributes before putting in attr//
     attrs.push_back();                                
@@ -285,12 +300,12 @@ RC RelationManager::insertTuple(const string &tableName, const void *data, RID &
   rc=-1;
   FileHandle handle;
   rc=_pf_manager->openFile(tableName.c_str(), handle));
-  if(rc=0){
-    RID rid=0;
-    vector<Attribute> recordDiscriptor;
-    getAttributes(tableName, recordDiscriptor);
-    rc=rbfm->insertRecord(handle, recordDescriptor, data, rid);
-  }
+if(rc=0){
+  RID rid=0;
+  vector<Attribute> recordDiscriptor;
+  getAttributes(tableName, recordDiscriptor);
+  rc=rbfm->insertRecord(handle, recordDescriptor, data, rid);
+}
 return rc;
 }
 
@@ -312,9 +327,9 @@ updateRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, 
 */
 RC RelationManager::updateTuple(const string &tableName, const void *data, const RID &rid)
 {
-    vector<Attribute> recordDiscriptor;
-    getAttributes(tableName, recordDiscriptor);
-    rc=rbfm->readRecord(handle, crecordDescriptor, rid, data);
+  vector<Attribute> recordDiscriptor;
+  getAttributes(tableName, recordDiscriptor);
+  rc=rbfm->readRecord(handle, crecordDescriptor, rid, data);
   FileHandle handle;
   RC update_tuple = openFile(tableName.c_str(), handle);
   const vector <Attribute> descriptor;
@@ -329,12 +344,12 @@ RC RelationManager::readTuple(const string &tableName, const RID &rid, void *dat
   rc= -1;
   FileHandle handle;
   rc=_pf_manager->openFile(tableName.c_str(), handle));
-  if(rc=0){
-    vector<Attribute> recordDiscriptor;
-    getAttributes(tableName, recordDiscriptor);
-    rc=rbfm->readRecord(handle, crecordDescriptor, rid, data);
-  }
-  return rc;
+if(rc=0){
+  vector<Attribute> recordDiscriptor;
+  getAttributes(tableName, recordDiscriptor);
+  rc=rbfm->readRecord(handle, crecordDescriptor, rid, data);
+}
+return rc;
 }
 
 RC RelationManager::printTuple(const vector<Attribute> &attrs, const void *data){
@@ -342,7 +357,15 @@ RC RelationManager::printTuple(const vector<Attribute> &attrs, const void *data)
 }
 
 RC RelationManager::readAttribute(const string &tableName, const RID &rid, const string &attributeName, void *data){
-  return -1;
+  FileHandle handle;
+  RC rc = openFile(tableName.c_str(), handle);
+
+  
+  const vector<Attribute> descriptor;                     
+  if (getAttributes(tableName, descriptor) == SUCCESS){                              /* gets the attributes from the table */
+    RC x = rbfm->readAttribute(handle, descriptor, rid, attributeName, data);              /* utilizes RBFM-> getAttribute() */
+  }
+return -1;
 }
 
 RC RelationManager::scan(const string &tableName,
@@ -354,60 +377,60 @@ RC RelationManager::scan(const string &tableName,
   int rc=-1;
   FileHandle handle;
   rc=_pf_manager->openFile(tableName.c_str(), handle));
-  if(rc=0){
-    vector<Attribute> recordDiscriptor;
-    getAttributes(tableName, recordDiscriptor);
-    rc=rbfm->scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rbfm_ScanIterator);
-  }  
-  return rc;
+if(rc=0){
+  vector<Attribute> recordDiscriptor;
+  getAttributes(tableName, recordDiscriptor);
+  rc=rbfm->scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rbfm_ScanIterator);
+}  
+return rc;
 }
 
 RC RelationManager::createDataForTables(int32_t table_id, const string &tableName, const void *data){
-    int32_t offset_in_data;
-    int8_t nullind=0;
+  int32_t offset_in_data;
+  int8_t nullind=0;
     //put null indicator into data
-    memcpy(data, &nullind, 1);
-    offset_in_data++;
+  memcpy(data, &nullind, 1);
+  offset_in_data++;
     //put first field, which is the table number, into data. 
-    memcpy(data+offset_in_data, &table_id, sizeof(int32_t));
-    offset_in_data+=sizeof(int32_t);
+  memcpy(data+offset_in_data, &table_id, sizeof(int32_t));
+  offset_in_data+=sizeof(int32_t);
     //next field, table name
-    int32_t nameSize = tableName.length();
-    memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+  int32_t nameSize = tableName.length();
+  memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
     offset_in_data+=sizeof(NameSize);
     memcpy(data+offset_in_data, tableName.c_str(), nameSize);
     offset_in_data+=nameSize);
     //next field, name again
-    memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+  memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
     offset_in_data+=sizeof(NameSize);
     memcpy(data+offset_in_data, tableName.c_str(), nameSize);
     offset_in_data+=nameSize);
 }
 
 RC RelationManager::createDataForColumns(int32_t table_id, const string &columnName, int32_t type, int32_t length, int32_t position, const void *data) {
-    int32_t offset_in_data;
-    int8_t nullind=0;
+  int32_t offset_in_data;
+  int8_t nullind=0;
     //put null indicator into data
-    memcpy(data, &nullind, 1);
-    offset_in_data++;
+  memcpy(data, &nullind, 1);
+  offset_in_data++;
     //put first field, which is the table number, into data. 
-    memcpy(data+offset_in_data, &table_id, sizeof(int32_t));
-    offset_in_data+=sizeof(int32_t);
+  memcpy(data+offset_in_data, &table_id, sizeof(int32_t));
+  offset_in_data+=sizeof(int32_t);
     //next field, column name
-    int32_t nameSize = columnName.length();
-    memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+  int32_t nameSize = columnName.length();
+  memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
     offset_in_data+=sizeof(NameSize);
     memcpy(data+offset_in_data, tableName.c_str(), nameSize);
     offset_in_data+=nameSize);
     //next field, type
-    memcpy(data+offset_in_data, type, sizeof(int32_t));
-    offset_in_data+=sizeof(int32_t);
+  memcpy(data+offset_in_data, type, sizeof(int32_t));
+  offset_in_data+=sizeof(int32_t);
     //next field, length
-    memcpy(data+offset_in_data, length, sizeof(int32_t));
-    offset_in_data+=sizeof(int32_t);
+  memcpy(data+offset_in_data, length, sizeof(int32_t));
+  offset_in_data+=sizeof(int32_t);
     //next field, position
-    memcpy(data+offset_in_data, position, sizeof(int32_t));
-    return 0;
+  memcpy(data+offset_in_data, position, sizeof(int32_t));
+  return 0;
 }
 
 
