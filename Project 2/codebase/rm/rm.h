@@ -80,6 +80,9 @@ private:
   RC createDataForColumns(int table_id, const string &columnName, int type, int length, int position, const void *data);
   vector<Attribute> GenerateTablesAttr();
   vector<Attribute> GenerateColumnsAttr();
+  RC insertTablesToCatalog();
+  RC insertColumnsToCatalog();
+  void* ConvertDataToRecord(vector)
 };
 
 #endif
