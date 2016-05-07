@@ -1,4 +1,3 @@
-
 #ifndef _rm_h_
 #define _rm_h_
 
@@ -31,18 +30,21 @@ public:
 
   RecordBasedFileManager rbfm;
   
+  //Alec
   RC createCatalog();
 
   RC deleteCatalog();
 
   RC createTable(const string &tableName, const vector<Attribute> &attrs);
 
+  //Table
   RC deleteTable(const string &tableName);
 
   RC getAttributes(const string &tableName, vector<Attribute> &attrs);
 
   RC insertTuple(const string &tableName, const void *data, RID &rid);
 
+  //Alec
   RC deleteTuple(const string &tableName, const RID &rid);
 
   RC updateTuple(const string &tableName, const void *data, const RID &rid);
@@ -51,6 +53,7 @@ public:
 
   // Print a tuple that is passed to this utility method.
   // The format is the same as printRecord().
+  //Alec
   RC printTuple(const vector<Attribute> &attrs, const void *data);
 
   RC readAttribute(const string &tableName, const RID &rid, const string &attributeName, void *data);
@@ -75,6 +78,8 @@ private:
   vector<Attribute> column_descriptor;
   RC createDataForTables(int table_id, const string &tableName, const void *data);
   RC createDataForColumns(int table_id, const string &columnName, int type, int length, int position, const void *data);
+  vector<Attribute> GenerateTablesAttr();
+  vector<Attribute> GenerateColumnsAttr();
 };
 
 #endif

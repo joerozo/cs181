@@ -47,58 +47,58 @@ RelationManager::RelationManager()
 
 
   //Initialize all the table attributes//
-Attribute table_id;
-table_id.name = "table-id";
-table_id.type = TypeInt;
-table_id.length = INT_SIZE;
+  Attribute table_id;
+  table_id.name = "table-id";
+  table_id.type = TypeInt;
+  table_id.length = INT_SIZE;
 
-Attribute table_name;
-table_name.name = "table-name";
-table_name.type = TypeVarChar;
-table_name.length = 50;
+  Attribute table_name;
+  table_name.name = "table-name";
+  table_name.type = TypeVarChar;
+  table_name.length = 50;
 
-Attribute table_fileName;
-table_fileName.name = "file-name";
-table_fileName.type = TypeVarChar;
-table_fileName.length = 50; 
+  Attribute table_fileName;
+  table_fileName.name = "file-name";
+  table_fileName.type = TypeVarChar;
+  table_fileName.length = 50; 
 
   //Initialize all the column attributes//
-Attribute column_table_id;
-column_table_id.name = "table-id"; 
-column_table_id.type = TypeInt;
-column_table_id.length = INT_SIZE;
+  Attribute column_table_id;
+  column_table_id.name = "table-id"; 
+  column_table_id.type = TypeInt;
+  column_table_id.length = INT_SIZE;
 
-Attribute column_name;
-column_name.name = "column-name";
-column_name.type = TypeVarChar;
-column_name.length = 50;
+  Attribute column_name;
+  column_name.name = "column-name";
+  column_name.type = TypeVarChar;
+  column_name.length = 50;
 
-Attribute column_type;
-column_type.name = "column-type";
-column_type.type = TypeInt;
-column_type.length = INT_SIZE;
+  Attribute column_type;
+  column_type.name = "column-type";
+  column_type.type = TypeInt;
+  column_type.length = INT_SIZE;
 
-Attribute column_length;
-column_length.name = "column-length";
-column_length.type = TypeInt;
-column_length.length = INT_SIZE;
+  Attribute column_length;
+  column_length.name = "column-length";
+  column_length.type = TypeInt;
+  column_length.length = INT_SIZE;
 
-Attribute column_position;
-column_position.name = "column-position";
-column_position.type = TypeInt;
-column_position.length = INT_SIZE;
+  Attribute column_position;
+  column_position.name = "column-position";
+  column_position.type = TypeInt;
+  column_position.length = INT_SIZE;
 
   //push into vector table_descriptor all of the attributes//
-table_descriptor.push_back(table_id);
-table_descriptor.push_back(table_name);
-table_descriptor.push_back(table_fileName);
+  table_descriptor.push_back(table_id);
+  table_descriptor.push_back(table_name);
+  table_descriptor.push_back(table_fileName);
 
   //push into vector column_descriptor all of the attributes//
-column_descriptor.push_back(column_table_id);
-column_descriptor.push_back(column_name);
-column_descriptor.push_back(column_type);
-column_descriptor.push_back(column_length);
-column_descriptor.push_back(column_position);
+  column_descriptor.push_back(column_table_id);
+  column_descriptor.push_back(column_name);
+  column_descriptor.push_back(column_type);
+  column_descriptor.push_back(column_length);
+  column_descriptor.push_back(column_position);
 }
 
 RelationManager::~RelationManager()
@@ -107,7 +107,17 @@ RelationManager::~RelationManager()
 
 RC RelationManager::createCatalog()
 {
-  return -1;
+  vector<Attribute> t
+
+  if(rbfm->createFile("Tables") == Success)
+  {
+
+  }
+  else
+  {
+    return RBFM_CREATE_FAILED;
+  }
+  return SUCCESS;
 }
 
 RC RelationManager::deleteCatalog()
@@ -275,12 +285,12 @@ RC RelationManager::insertTuple(const string &tableName, const void *data, RID &
   rc=-1;
   FileHandle handle;
   rc=_pf_manager->openFile(tableName.c_str(), handle));
-if(rc=0){
-  RID rid=0;
-  vector<Attribute> recordDiscriptor;
-  getAttributes(tableName, recordDiscriptor);
-  rc=rbfm->insertRecord(handle, recordDescriptor, data, rid);
-}
+  if(rc=0){
+    RID rid=0;
+    vector<Attribute> recordDiscriptor;
+    getAttributes(tableName, recordDiscriptor);
+    rc=rbfm->insertRecord(handle, recordDescriptor, data, rid);
+  }
 return rc;
 }
 
@@ -298,25 +308,23 @@ RC RelationManager::updateTuple(const string &tableName, const void *data, const
   return -1;
 }
 
-RC RelationManager::readTuple(const string &tableName, const RID &rid, void *data)
-{
+RC RelationManager::readTuple(const string &tableName, const RID &rid, void *data){
   rc= -1;
   FileHandle handle;
   rc=_pf_manager->openFile(tableName.c_str(), handle));
-if(rc=0){
-  vector<Attribute> recordDiscriptor;
-  getAttributes(tableName, recordDiscriptor);
-  rc=rbfm->readRecord(handle, crecordDescriptor, rid, data);
+  if(rc=0){
+    vector<Attribute> recordDiscriptor;
+    getAttributes(tableName, recordDiscriptor);
+    rc=rbfm->readRecord(handle, crecordDescriptor, rid, data);
+  }
   return rc;
 }
 
-RC RelationManager::printTuple(const vector<Attribute> &attrs, const void *data)
-{
+RC RelationManager::printTuple(const vector<Attribute> &attrs, const void *data){
 	return -1;
 }
 
-RC RelationManager::readAttribute(const string &tableName, const RID &rid, const string &attributeName, void *data)
-{
+RC RelationManager::readAttribute(const string &tableName, const RID &rid, const string &attributeName, void *data){
   return -1;
 }
 
@@ -325,18 +333,16 @@ RC RelationManager::scan(const string &tableName,
   const CompOp compOp,                  
   const void *value,                    
   const vector<string> &attributeNames,
-  RM_ScanIterator &rm_ScanIterator)
-{
+  RM_ScanIterator &rm_ScanIterator){
   int rc=-1;
   FileHandle handle;
   rc=_pf_manager->openFile(tableName.c_str(), handle));
-if(rc=0){
-  vector<Attribute> recordDiscriptor;
-  getAttributes(tableName, recordDiscriptor);
-  rc=rbfm->scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rbfm_ScanIterator);
-}  
-return rc;
-}
+  if(rc=0){
+    vector<Attribute> recordDiscriptor;
+    getAttributes(tableName, recordDiscriptor);
+    rc=rbfm->scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rbfm_ScanIterator);
+  }  
+  return rc;
 }
 
 RC RelationManager::createDataForTables(int32_t table_id, const string &tableName, const void *data){
@@ -388,4 +394,59 @@ RC RelationManager::createDataForColumns(int32_t table_id, const string &columnN
 }
 
 
+vector<Attribute> RelationManager::GenerateTablesAttr(){
+  vector<Attribute> tableAttributes;
 
+  Attribute table_id;
+  Attribute table_name;
+  Attribute file_name;
+
+  table_id.name = "table-id";
+  table_id.type = TypeInt;
+  table_id.length = 4;
+
+  table_name.name = "table-name";
+  table_name.type = TypeVarChar;
+  table_name.length = 50;
+
+  file_name.name = "file-name";
+  file_name.type = TypeVarChar;
+  file_name.length = 50;
+
+  tableAttributes.push_back(table_id);
+  tableAttributes.push_back(table_name);
+  tableAttributes.push_back(file_name);
+
+  return tableAttributes;
+}
+vector<Attribute> RelationManager::GenerateColumnsAttr(){
+  vector<Attribute> columnAttributes;
+
+  Attribute table_id;
+  Attribute column_name;
+  Attribute column_type;
+  Attribute column_length;
+
+  table_id.name = "table-id";
+  table_id.type = TypeInt;
+  table_id.length = 4;
+
+  column_name.name   = "column-name";
+  column_name.type   = TypeVarChar;
+  column_name.length = 50;
+
+  column_type.name   = "column-type";
+  column_type.type   = TypeInt;
+  column_type.length = 4;
+
+  column_length.name   = "column-length";
+  column_length.type   = TypeInt;
+  column_length.length = 4;
+
+  tableAttributes.push_back(table_id);
+  tableAttributes.push_back(column_name);
+  tableAttributes.push_back(column_type);
+  tableAttributes.push_back(column_length);
+
+  return columnAttributes;
+}
