@@ -127,27 +127,27 @@ RC RelationManager::createCatalog()
 	memcpy(columnTableData + 4, columnName, 50);
 	memcpy(columnTableData + 4 + 50, columnName, 50);
 
-	if (rbfm->createFile("Tables") != SUCCESS)
+	if (rbfm.createFile("Tables") != SUCCESS)
 	{
 		return RBFM_CREATE_FAILED;
 	}
 
-	if (rbfm->openFile("Tables", fileHandle) != SUCCESS)
+	if (rbfm.openFile("Tables", fileHandle) != SUCCESS)
 	{
 		return RBFM_OPEN_FAILED;
 	}
 
-	rc = rbfm->insertRecord(fileHandle, tableAttr, tableTableData, rid);
+	rc = rbfm.insertRecord(fileHandle, tableAttr, tableTableData, rid);
 	if (rc != SUCCESS)
 	{
 		return rc;
 	}
-	rc = rbfm->insertRecord(fileHandle, tableAttr, columnTableData, rid);
+	rc = rbfm.insertRecord(fileHandle, tableAttr, columnTableData, rid);
 	if (rc != SUCCESS)
 	{
 		return rc;
 	}
-	rc = rbfm->closeFile(fileHandle);
+	rc = rbfm.closeFile(fileHandle);
 	if (rc != SUCCESS)
 	{
 		return rc;
