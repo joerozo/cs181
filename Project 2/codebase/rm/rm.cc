@@ -119,7 +119,7 @@ RC RelationManager::createCatalog()
   unsigned int column_id = 2;
   string tableName = "Tables";
   string columnName = "Columns";
-	memcpy(tableTableData, &table_id, 4);
+	memcpy(tableTableData, table_id, 4);
 	memcpy(tableTableData + 4, tableName, 50);
 	memcpy(tableTableData + 4 + 50, tableName, 50);
 

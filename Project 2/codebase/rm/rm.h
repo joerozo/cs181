@@ -85,7 +85,7 @@ private:
   vector<Attribute> GenerateColumnsAttr();
   RC insertTablesToCatalog();
   RC insertColumnsToCatalog();
-  int file_exist (char *filename)
+  int file_exist (char *filename);
 };
 
 #endif
