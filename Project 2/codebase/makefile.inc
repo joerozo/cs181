@@ -2,7 +2,7 @@
 CODEROOT = "../"
 
 #CC = gcc
-CC = g++ -std=c++11 -wpointer-arith
+CC = g++ -std=c++11 -w
 
 #CPPFLAGS = -Wall -I$(CODEROOT) -O3  # maximal optimization
 CPPFLAGS = -Wall -I$(CODEROOT) -g     # with debugging info
