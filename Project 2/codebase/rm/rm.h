@@ -7,7 +7,8 @@
 #include "../rbf/rbfm.h"
 
 using namespace std;
-
+#define TABLE_DATA_SIZE 104
+#define COLUMN_DATA_SIZE 66
 # define RM_EOF (-1)  // end of a scan operator
 
 // RM_ScanIterator is an iteratr to go through tuples
