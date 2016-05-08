@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
+#include <fstream>
 #include <stdlib.h>  
 #include "../rbf/rbfm.h"
 
