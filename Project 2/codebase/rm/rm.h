@@ -82,7 +82,6 @@ private:
   vector<Attribute> GenerateColumnsAttr();
   RC insertTablesToCatalog();
   RC insertColumnsToCatalog();
-  void* ConvertDataToRecord(vector)
 };
 
 #endif
