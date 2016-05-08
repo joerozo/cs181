@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <fstream> 
+#include <assert.h>
 #include "../rbf/rbfm.h"
 
 using namespace std;
