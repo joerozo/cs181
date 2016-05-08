@@ -346,11 +346,12 @@ RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &at
   // need scan_iterator//
   RC iterator = scan(handle, recordDescriptor, "tableName", comp, result, rmsi);
 
-  assert(iterator == success && "RelationManager::scan() should not fail.");
+  if(iterator == success)
+    cout << "RelationManager::scan() should not fail." << endl;
 
-  if(file_exists(tableName)==true){
+  if(file_exists(tableName.c_str())==true){
     while(rmsi.getNextTuple(rid, returnedData) != RM_EOF){
-      //DONT think this is right
+      //DONT think this is right  
       //RC v = iterator.getNextRecord(tableId, handle);
       //recordDescriptor = (Attributes)v;
     }
