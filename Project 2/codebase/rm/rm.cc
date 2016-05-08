@@ -393,7 +393,7 @@ RC RelationManager::updateTuple(const string &tableName, const void *data, const
 {
   vector<Attribute> recordDiscriptor;
   getAttributes(tableName, recordDiscriptor);
-  rc=rbfm->readRecord(handle, crecordDescriptor, rid, data);
+  rc=rbfm->readRecord(handle, recordDiscriptor, rid, data);
   FileHandle handle;
   RC update_tuple = openFile(tableName.c_str(), handle);
   const vector <Attribute> descriptor;
@@ -411,7 +411,7 @@ RC RelationManager::readTuple(const string &tableName, const RID &rid, void *dat
 if(rc=0){
   vector<Attribute> recordDiscriptor;
   getAttributes(tableName, recordDiscriptor);
-  rc=rbfm->readRecord(handle, crecordDescriptor, rid, data);
+  rc=rbfm->readRecord(handle, recordDiscriptor, rid, data);
 }
 return rc;
 }
@@ -467,7 +467,7 @@ RC RelationManager::createDataForTables(int32_t table_id, const string &tableNam
     offset_in_data+=nameSize;
     //next field, name again
   memcpy(data+offset_in_data, &nameSize, sizeof(nameSize));
-    offset_in_data+=sizeof(NameSize);
+    offset_in_data+=sizeof(nameSize);
     memcpy(data+offset_in_data, tableName.c_str(), nameSize);
     offset_in_data+=nameSize;
 }
