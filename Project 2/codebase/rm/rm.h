@@ -88,7 +88,7 @@ private:
   RC insertColumnsToCatalog();
   int file_exist (char *filename);
 
-  void* StartingCatalogInfo(i);
+  void* StartingCatalogInfo(unsigned int i);
 };
 
 #endif

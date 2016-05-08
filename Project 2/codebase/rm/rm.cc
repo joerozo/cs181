@@ -561,9 +561,7 @@ int RelationManager::file_exist (char *filename)
   return ifile;
 }
 
-
-
-void* RelationManager::StartingCatalogInfo(i)
+void* RelationManager::StartingCatalogInfo(unsigned int i)
 {
   void* columnData = (void*)malloc(COLUMN_DATA_SIZE);
   unsigned int table_id;
