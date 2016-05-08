@@ -1,32 +1,35 @@
 1. Basic information
-Team number (e.g., 01) : 
-#1 Submitter ID : 
-#1 Submitter Name : 
+Team number (e.g., 01) :   	01
+#1 Submitter ID : 1439549
+#1 Submitter Name : Alec m Reid
 
 
 
 2. Meta-data
 - Show your meta-data design (Tables and Columns table) and information about each column.
-
+	had to use to helper functions to generate the appropriate attribute list for the tables and columns file
 
 3. Internal Record Format
 - Show your record format design and describe how your design satisfies O(1) field access. If not, just mention that your team hasn't implemented this feature.
 - Describe how you store a VarChar field.
 - Describe how you deal with an update and delete.
-
-
+	I believe the team hasn't implemented
+	
 4. Page Format
 - Show your page format design.
 - Describe how you deal with an update and delete.
+	used the rbfm function to implement them used getAttribute to get the attribute list
 
 
 5. File Format
 - Show your file format design
+	the pages have there slots and header and record place in the back of the page to front
 
 
 
 6. Implementation Detail
 - Other implementation details goes here.
+	we did finish still debugging
 
 
 7. Other (optional)
