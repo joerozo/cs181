@@ -107,17 +107,76 @@ RelationManager::~RelationManager()
 
 RC RelationManager::createCatalog()
 {
-  vector<Attribute> t;
+	FileHandle fileHandle;
+	RID rid;
+	vector<Attribute> tableAttr = GenerateTablesAttr();
+	vector<Attribute> columnAttr = GenerateColumnsAttr();
 
-  if(rbfm->createFile("Tables") == Success)
-  {
+	void* tableTableData = malloc(TABLE_DATA_SIZE);
+	void* columnTableData = malloc(TABLE_DATA_SIZE);
+	RC rc;
 
-  }
-  else
-  {
-    return RBFM_CREATE_FAILED;
-  }
-  return SUCCESS;
+	memcpy(tableTableData, (int)1, 4);
+	memcpy(tableTableData + 4, "Tables", 50);
+	memcpy(tableTableData + 4 + 50, "Tables", 50);
+
+	memcpy(columnTableData, (int)2, 4);
+	memcpy(columnTableData + 4, "Columns", 50);
+	memcpy(columnTableData + 4 + 50, "Columns", 50);
+
+	if (rbfm->createFile("Tables") != SUCCESS)
+	{
+		return RBFM_CREATE_FAILED;
+	}
+
+	if (rbfm->openFile("Tables", fileHandle) != SUCCESS)
+	{
+		return RBFM_OPEN_FAILED;
+	}
+
+	rc = rbfm->insertRecord(fileHandle, tableAttr, tableTableData, rid);
+	if (rc != SUCCESS)
+	{
+		return rc;
+	}
+	rc = rbfm->insertRecord(fileHandle, tableAttr, columnTableData, rid);
+	if (rc != SUCCESS)
+	{
+		return rc;
+	}
+	rc = rbfm->closeFile(fileHandle);
+	if (rc != SUCCESS)
+	{
+		return rc;
+	}
+
+	if (rbfm->createFile("Columns") != SUCCESS)
+	{
+		return RBFM_CREATE_FAILED;
+	}
+
+	if (rbfm->openFile("Columns", fileHandle) != SUCCESS)
+	{
+		return RBFM_OPEN_FAILED;
+	}
+
+	for (int i = 0; i<8; i++)
+	{
+		rc = rbfm->insertRecord(fileHandle, columnAttr, StartingCatalogInfo(i), rid);
+
+		if (rc != SUCCESS)
+		{
+			return rc
+		}
+	}
+
+	rc = rbfm->closeFile(fileHandle);
+	if (rc != SUCCESS)
+	{
+		return rc;
+	}
+
+	return SUCCESS;
 }
  /* delete the "Table" and "Column" tables */
 
