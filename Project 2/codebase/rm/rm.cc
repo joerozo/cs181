@@ -368,7 +368,7 @@ if(rc=0){
   RID rid=0;
   vector<Attribute> recordDiscriptor;
   getAttributes(tableName, recordDiscriptor);
-  rc=rbfm->insertRecord(handle, recordDescriptor, data, rid);
+  rc=rbfm.insertRecord(handle, recordDescriptor, data, rid);
 }
 return rc;
 }
@@ -392,9 +392,10 @@ updateRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, 
 RC RelationManager::updateTuple(const string &tableName, const void *data, const RID &rid)
 {
   vector<Attribute> recordDiscriptor;
+  FileHandle handle;
+  handle.openFile(tableName);
   getAttributes(tableName, recordDiscriptor);
   RC rc=rbfm.readRecord(handle, recordDiscriptor, rid, data);
-  FileHandle handle;
   RC update_tuple = rbfm.openFile(tableName.c_str(), handle);
   vector <Attribute> descriptor;
   getAttributes(tableName, descriptor);
