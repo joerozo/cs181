@@ -115,14 +115,17 @@ RC RelationManager::createCatalog()
 	void* tableTableData = (char*)malloc(TABLE_DATA_SIZE);
 	void* columnTableData = malloc(TABLE_DATA_SIZE);
 	RC rc;
+  unsigned int table_id = 1;
+  unsigned int column_id = 2;
+  string tableName = "Tables";
+  string columnName = "Columns";
+	memcpy(tableTableData, &table_id, 4);
+	memcpy(tableTableData + 4, tableName, 50);
+	memcpy(tableTableData + 4 + 50, tableName, 50);
 
-	memcpy(tableTableData, &(int)1, 4);
-	memcpy(tableTableData + 4, &"Tables", 50);
-	memcpy(tableTableData + 4 + 50, &"Tables", 50);
-
-	memcpy(columnTableData, &(int)2, 4);
-	memcpy(columnTableData + 4, &"Columns", 50);
-	memcpy(columnTableData + 4 + 50, &"Columns", 50);
+	memcpy(columnTableData, &column_id, 4);
+	memcpy(columnTableData + 4, columnName, 50);
+	memcpy(columnTableData + 4 + 50, columnName, 50);
 
 	if (rbfm->createFile("Tables") != SUCCESS)
 	{
