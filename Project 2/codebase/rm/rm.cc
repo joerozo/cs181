@@ -112,7 +112,7 @@ RC RelationManager::createCatalog()
 	vector<Attribute> tableAttr = GenerateTablesAttr();
 	vector<Attribute> columnAttr = GenerateColumnsAttr();
 
-	void* tableTableData = malloc(TABLE_DATA_SIZE);
+	void* tableTableData = (char*)malloc(TABLE_DATA_SIZE);
 	void* columnTableData = malloc(TABLE_DATA_SIZE);
 	RC rc;
 
