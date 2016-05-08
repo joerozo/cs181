@@ -558,7 +558,7 @@ vector<Attribute> RelationManager::GenerateColumnsAttr(){
 int RelationManager::file_exist (char *filename)
 {
   ifstream ifile(filename);
-  return ifile;
+  return (int)ifile;
 }
 
 void* RelationManager::StartingCatalogInfo(unsigned int i)
