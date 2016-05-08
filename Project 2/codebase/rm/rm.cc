@@ -487,13 +487,13 @@ RC RelationManager::createDataForColumns(int32_t table_id, const string &columnN
     memcpy(data+offset_in_data, tableName.c_str(), nameSize);
     offset_in_data+=nameSize);
     //next field, type
-  memcpy(data+offset_in_data, type, sizeof(int32_t));
+  memcpy(data+offset_in_data, &type, sizeof(int32_t));
   offset_in_data+=sizeof(int32_t);
     //next field, length
-  memcpy(data+offset_in_data, length, sizeof(int32_t));
+  memcpy(data+offset_in_data, &length, sizeof(int32_t));
   offset_in_data+=sizeof(int32_t);
     //next field, position
-  memcpy(data+offset_in_data, position, sizeof(int32_t));
+  memcpy(data+offset_in_data, &position, sizeof(int32_t));
   return 0;
 }
 
@@ -547,10 +547,10 @@ vector<Attribute> RelationManager::GenerateColumnsAttr(){
   column_length.type   = TypeInt;
   column_length.length = 4;
 
-  tableAttributes.push_back(table_id);
-  tableAttributes.push_back(column_name);
-  tableAttributes.push_back(column_type);
-  tableAttributes.push_back(column_length);
+  columnAttributes.push_back(table_id);
+  columnAttributes.push_back(column_name);
+  columnAttributes.push_back(column_type);
+  columnAttributes  .push_back(column_length);
 
   return columnAttributes;
 }
