@@ -2,11 +2,11 @@
 #define _rm_h_
 
 #include <iostream>
+#include <cstdint>
+#include <cstring>
 #include <string>
 #include <vector>
-#include <stdint.h>
-#include <fstream>
-#include <stdlib.h>  
+#include <fstream> 
 #include "../rbf/rbfm.h"
 
 using namespace std;
