@@ -458,9 +458,9 @@ RC RelationManager::scan(const string &tableName,
   FileHandle handle;
   rc=_pf_manager.openFile(tableName.c_str(), handle));
 if(rc=0){
-  vector<Attribute> recordDescriptor;
-  getAttributes(tableName, recordDescriptor);
-  rc=rbfm.scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rm_ScanIterator);
+  //vector<Attribute> recordDescriptor;
+  //getAttributes(tableName, recordDescriptor);
+  rc=rbfm.scan(handle, conditionAttribute, compOp, value, attributeNames, rm_ScanIterator);
 }  
 return rc;
 }
