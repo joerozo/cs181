@@ -1,6 +1,7 @@
 #ifndef _rm_h_
 #define _rm_h_
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <stdint.h>
@@ -84,6 +85,7 @@ private:
   vector<Attribute> GenerateColumnsAttr();
   RC insertTablesToCatalog();
   RC insertColumnsToCatalog();
+  int file_exist (char *filename)
 };
 
 #endif
