@@ -417,7 +417,8 @@ return rc;
 }
 
 RC RelationManager::printTuple(const vector<Attribute> &attrs, const void *data){
-	return -1;
+  rbfm.printRecord(attrs, data);
+	return SUCCESS;
 }
 
 RC RelationManager::readAttribute(const string &tableName, const RID &rid, const string &attributeName, void *data){
