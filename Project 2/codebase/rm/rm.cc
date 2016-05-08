@@ -560,3 +560,63 @@ int RelationManager::file_exist (char *filename)
   struct stat   buffer;   
   return (stat (filename, &buffer) == 0);
 }
+
+void* RelationManager::StartingCatalogInfo(i)
+{
+  void* columnData = (void*)malloc(COLUMN_DATA_SIZE);
+  unsigned int table_id;
+  string column_name; 
+  unsigned int column_type;
+  unsigned int column_length;
+  unsigned int column_position;
+
+  switch(i)
+  {
+    case 0: table_id =1;
+            column_name = "table-id";
+            column_type = TypeInt;
+            column_length = 4;
+            column_position = 1;
+    case 1: table_id =1;
+            column_name = "table-name";
+            column_type = TypeVarChar;
+            column_length = 50;
+            column_position = 2;
+    case 2: table_id =1;
+            column_name = "file-name";
+            column_type = TypeVarChar;
+            column_length = 50;
+            column_position = 3 ;
+    case 3: table_id =2;
+            column_name = "table-id";
+            column_type = TypeInt;
+            column_length = 4;
+            column_position = 1;
+    case 4: table_id =2;
+            column_name = "column-name";
+            column_type = TypeVarChar;
+            column_length = 50;
+            column_position = 2;
+    case 5: table_id =2;
+            column_name = "column-length";
+            column_type = TypeInt;
+            column_length = 4;
+            column_position = 3;
+    case 6: table_id =2;
+            column_name = "column-length";
+            column_type = TypeInt;
+            column_length = 4;
+            column_position = 4;
+    case 7: table_id =2;
+            column_name = "column-position";
+            column_type = TypeInt;
+            column_length = 4;
+            column_position = 5;
+    }
+
+    memcpy(columnData,    &table_id, 4);
+    memcpy(columnData+4,  column_name.c_str(), 50);
+    memcpy(columnData+54, &column_type, 4);
+    memcpy(columnData+58, &column_length, 4);    
+    memcpy(columnData+62, &column_position, 4);
+  }
