@@ -346,7 +346,7 @@ RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &at
   // need scan_iterator//
   RC iterator = scan(handle, recordDescriptor, "tableName", comp, result, rmsi);
 
-  if(iterator == SUCCESS)
+  if(iterator == SuccessCESS)
     cout << "RelationManager::scan() should not fail." << endl;
 
   if(file_exist(tableName.c_str())==true){
