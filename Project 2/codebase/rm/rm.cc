@@ -169,7 +169,7 @@ RC RelationManager::createCatalog()
 
 		if (rc != SUCCESS)
 		{
-			return rc
+			return rc;
 		}
 	}
 
