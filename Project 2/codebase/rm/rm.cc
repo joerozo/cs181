@@ -552,3 +552,9 @@ vector<Attribute> RelationManager::GenerateColumnsAttr(){
 
   return columnAttributes;
 }
+
+int RelationManager::file_exist (char *filename)
+{
+  struct stat   buffer;   
+  return (stat (filename, &buffer) == 0);
+}
