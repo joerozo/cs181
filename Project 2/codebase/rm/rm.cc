@@ -350,7 +350,8 @@ RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &at
 
   if(file_exists(tableName)==true){
     while(rmsi.getNextTuple(rid, returnedData) != RM_EOF){
-      recordDescriptor = iterator.getNextRecord(tableId, handle);
+      //DONT think this is right
+      //RC v = iterator.getNextRecord(tableId, handle);
       //recordDescriptor = (Attributes)v;
     }
     return recordDescriptor;
@@ -363,7 +364,7 @@ RC RelationManager::insertTuple(const string &tableName, const void *data, RID &
 {
   RC rc=-1;
   FileHandle handle;
-  rc=rbfm.openFile(tableName.c_str(), handle));
+  rc=rbfm.openFile(tableName.c_str(), handle);
 if(rc=0){
   RID rid;
   vector<Attribute> recordDescriptor;
