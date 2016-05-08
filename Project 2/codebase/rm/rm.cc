@@ -393,7 +393,7 @@ RC RelationManager::updateTuple(const string &tableName, const void *data, const
 {
   vector<Attribute> recordDiscriptor;
   getAttributes(tableName, recordDiscriptor);
-  rc=rbfm->readRecord(handle, recordDiscriptor, rid, data);
+  RC rc=rbfm.readRecord(handle, recordDiscriptor, rid, data);
   FileHandle handle;
   RC update_tuple = rbfm.openFile(tableName.c_str(), handle);
   vector <Attribute> descriptor;
