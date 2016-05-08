@@ -350,8 +350,8 @@ RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &at
 
   if(file_exists(tableName)==true){
     while(rmsi.getNextTuple(rid, returnedData) != RM_EOF){
-      RC v = iterator.getNextRecord(tableId, handle);
-      recordDescriptor = (Attributes)v;
+      recordDescriptor = iterator.getNextRecord(tableId, handle);
+      //recordDescriptor = (Attributes)v;
     }
     return recordDescriptor;
   }
