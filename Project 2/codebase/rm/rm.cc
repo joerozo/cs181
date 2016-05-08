@@ -471,7 +471,7 @@ RC RelationManager::createDataForTables(int32_t table_id, const string &tableNam
     offset_in_data+=nameSize);
 }
 
-RC RelationManager::createDataForColumns(int32_t table_id, const string &columnName, int32_t type, int32_t length, int32_t position, const void *data) {
+RC RelationManager::createDataForColumns(int32_t table_id, const string &columnName, int32_t type, int32_t length, int32_t position, void *data) {
   int32_t offset_in_data;
   int8_t nullind=0;
     //put null indicator into data
