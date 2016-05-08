@@ -116,13 +116,13 @@ RC RelationManager::createCatalog()
 	void* columnTableData = malloc(TABLE_DATA_SIZE);
 	RC rc;
 
-	memcpy(tableTableData, (int)1, 4);
-	memcpy(tableTableData + 4, "Tables", 50);
-	memcpy(tableTableData + 4 + 50, "Tables", 50);
+	memcpy(tableTableData, &(int)1, 4);
+	memcpy(tableTableData + 4, &"Tables", 50);
+	memcpy(tableTableData + 4 + 50, &"Tables", 50);
 
-	memcpy(columnTableData, (int)2, 4);
-	memcpy(columnTableData + 4, "Columns", 50);
-	memcpy(columnTableData + 4 + 50, "Columns", 50);
+	memcpy(columnTableData, &(int)2, 4);
+	memcpy(columnTableData + 4, &"Columns", 50);
+	memcpy(columnTableData + 4 + 50, &"Columns", 50);
 
 	if (rbfm->createFile("Tables") != SUCCESS)
 	{
