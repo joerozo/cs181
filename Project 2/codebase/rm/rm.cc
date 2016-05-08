@@ -445,7 +445,7 @@ RC RelationManager::scan(const string &tableName,
 if(rc=0){
   vector<Attribute> recordDiscriptor;
   getAttributes(tableName, recordDiscriptor);
-  rc=rbfm->scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rbfm_ScanIterator);
+  rc=rbfm->scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rm_ScanIterator);
 }  
 return rc;
 }
@@ -462,7 +462,7 @@ RC RelationManager::createDataForTables(int32_t table_id, const string &tableNam
     //next field, table name
   int32_t nameSize = tableName.length();
   memcpy(data+offset_in_data, &nameSize, sizeof(nameSize));
-    offset_in_data+=sizeof(NameSize);
+    offset_in_data+=sizeof(nameSize);
     memcpy(data+offset_in_data, tableName.c_str(), nameSize);
     offset_in_data+=nameSize;
     //next field, name again
