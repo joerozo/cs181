@@ -366,8 +366,8 @@ RC RelationManager::insertTuple(const string &tableName, const void *data, RID &
   rc=_pf_manager->openFile(tableName.c_str(), handle));
 if(rc=0){
   RID rid=0;
-  vector<Attribute> recordDiscriptor;
-  getAttributes(tableName, recordDiscriptor);
+  vector<Attribute> recordDescriptor;
+  getAttributes(tableName, recordDescriptor);
   rc=rbfm.insertRecord(handle, recordDescriptor, data, rid);
 }
 return rc;
@@ -384,7 +384,7 @@ RC RelationManager::deleteTuple(const string &tableName, const RID &rid)
   if(rbfm.openFile(tableName, filehandle) != SUCCESS)
     return RBFM_OPEN_FAILED;
   
-  if(rbfm.deleteRecord(filehandle, attr, rid) != SUCCESS)
+  if(rbfm.deleteRecord(filehandle, attrs, rid) != SUCCESS)
     return RBFM_WRITE_FAILED;
 
   if(rbfm.closeFile(filehandle) != SUCCESS)
