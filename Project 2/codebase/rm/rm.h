@@ -53,7 +53,7 @@ public:
 
   RC updateTuple(const string &tableName, const void *data, const RID &rid);
 
-  RC readTuple(const string &tableName, const RID &rid, void *data);
+  RC readTuple( string &tableName, const RID &rid, void *data);
 
   // Print a tuple that is passed to this utility method.
   // The format is the same as printRecord().

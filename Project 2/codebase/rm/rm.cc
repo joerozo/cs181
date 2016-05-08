@@ -404,7 +404,7 @@ is no space in the page to store the tuple (after the update), then the tuple is
 Return an error if a table called tableName does not exist. Also return a (different) error if there is no tuple with the specified rid.
 updateRecord(FileHandle &fileHandle, const vector<Attribute> &recordDescriptor, const void *data, const RID &rid)
 */
-RC RelationManager::updateTuple(const string &tableName, const void *data, const RID &rid)
+RC RelationManager::updateTuple(const string &tableName, void *data, const RID &rid)
 {
   vector<Attribute> recordDiscriptor;
   FileHandle handle;
