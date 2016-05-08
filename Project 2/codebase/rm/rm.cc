@@ -153,19 +153,19 @@ RC RelationManager::createCatalog()
 		return rc;
 	}
 
-	if (rbfm->createFile("Columns") != SUCCESS)
+	if (rbfm.createFile("Columns") != SUCCESS)
 	{
 		return RBFM_CREATE_FAILED;
 	}
 
-	if (rbfm->openFile("Columns", fileHandle) != SUCCESS)
+	if (rbfm.openFile("Columns", fileHandle) != SUCCESS)
 	{
 		return RBFM_OPEN_FAILED;
 	}
 
 	for (int i = 0; i<8; i++)
 	{
-		rc = rbfm->insertRecord(fileHandle, columnAttr, StartingCatalogInfo(i), rid);
+		rc = rbfm.insertRecord(fileHandle, columnAttr, StartingCatalogInfo(i), rid);
 
 		if (rc != SUCCESS)
 		{
@@ -173,7 +173,7 @@ RC RelationManager::createCatalog()
 		}
 	}
 
-	rc = rbfm->closeFile(fileHandle);
+	rc = rbfm.closeFile(fileHandle);
 	if (rc != SUCCESS)
 	{
 		return rc;
