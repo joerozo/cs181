@@ -395,8 +395,8 @@ RC RelationManager::updateTuple(const string &tableName, const void *data, const
   getAttributes(tableName, recordDiscriptor);
   rc=rbfm->readRecord(handle, recordDiscriptor, rid, data);
   FileHandle handle;
-  RC update_tuple = openFile(tableName.c_str(), handle);
-  const vector <Attribute> descriptor;
+  RC update_tuple = rbfm.openFile(tableName.c_str(), handle);
+  vector <Attribute> descriptor;
   getAttributes(tableName, descriptor);
   if(updateRecord(handle, handle, descriptor, data, rid) == SUCCESS){
     return 1;
