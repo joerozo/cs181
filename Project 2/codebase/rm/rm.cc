@@ -441,11 +441,11 @@ RC RelationManager::scan(const string &tableName,
   RM_ScanIterator &rm_ScanIterator){
   int rc=-1;
   FileHandle handle;
-  rc=_pf_manager->openFile(tableName.c_str(), handle));
+  rc=_pf_manager.openFile(tableName.c_str(), handle));
 if(rc=0){
   vector<Attribute> recordDescriptor;
   getAttributes(tableName, recordDescriptor);
-  rc=rbfm->scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rm_ScanIterator);
+  rc=rbfm.scan(handle, recordDescriptor, conditionAttribute, compOp, value, attributeNames, rm_ScanIterator);
 }  
 return rc;
 }
