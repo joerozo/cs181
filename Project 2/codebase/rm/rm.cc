@@ -361,11 +361,11 @@ RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &at
 
 RC RelationManager::insertTuple(const string &tableName, const void *data, RID &rid)
 {
-  rc=-1;
+  RC rc=-1;
   FileHandle handle;
-  rc=_pf_manager->openFile(tableName.c_str(), handle));
+  rc=rbfm.openFile(tableName.c_str(), handle));
 if(rc=0){
-  RID rid=0;
+  RID rid;
   vector<Attribute> recordDescriptor;
   getAttributes(tableName, recordDescriptor);
   rc=rbfm.insertRecord(handle, recordDescriptor, data, rid);
