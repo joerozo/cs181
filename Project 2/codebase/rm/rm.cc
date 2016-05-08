@@ -377,8 +377,8 @@ RC RelationManager::deleteTuple(const string &tableName, const RID &rid)
 {
   RC rc;
   FileHandle filehandle;
-  vector<Attribute> &attrs;
-  if(rbfm.getAttributes(tableName, attrs) != SUCCESS)
+  vector<Attribute> attrs;
+  if(getAttributes(tableName, attrs) != SUCCESS)
     return RBFM_OPEN_FAILED;
 
   if(rbfm.openFile(tableName, filehandle) != SUCCESS)
