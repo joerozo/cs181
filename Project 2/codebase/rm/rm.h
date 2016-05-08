@@ -80,7 +80,7 @@ private:
   static RelationManager *_rm;
   vector<Attribute> table_descriptor; 
   vector<Attribute> column_descriptor;
-  RC createDataForTables(int table_id, const string &tableName, const void *data);
+  RC createDataForTables(int table_id, const string &tableName, void *data);
   RC createDataForColumns(int table_id, const string &columnName, int type, int length, int position, void *data);
   vector<Attribute> GenerateTablesAttr();
   vector<Attribute> GenerateColumnsAttr();

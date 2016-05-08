@@ -449,7 +449,7 @@ if(rc=0){
 return rc;
 }
 
-RC RelationManager::createDataForTables(int32_t table_id, const string &tableName, const void *data){
+RC RelationManager::createDataForTables(int32_t table_id, const string &tableName, void *data){
   int32_t offset_in_data;
   int8_t nullind=0;
     //put null indicator into data
@@ -460,15 +460,15 @@ RC RelationManager::createDataForTables(int32_t table_id, const string &tableNam
   offset_in_data+=sizeof(int32_t);
     //next field, table name
   int32_t nameSize = tableName.length();
-  memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+  memcpy(data+offset_in_data, &nameSize, sizeof(nameSize));
     offset_in_data+=sizeof(NameSize);
     memcpy(data+offset_in_data, tableName.c_str(), nameSize);
-    offset_in_data+=nameSize);
+    offset_in_data+=nameSize;
     //next field, name again
-  memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+  memcpy(data+offset_in_data, &nameSize, sizeof(nameSize));
     offset_in_data+=sizeof(NameSize);
     memcpy(data+offset_in_data, tableName.c_str(), nameSize);
-    offset_in_data+=nameSize);
+    offset_in_data+=nameSize;
 }
 
 RC RelationManager::createDataForColumns(int32_t table_id, const string &columnName, int32_t type, int32_t length, int32_t position, void *data) {
@@ -482,7 +482,7 @@ RC RelationManager::createDataForColumns(int32_t table_id, const string &columnN
   offset_in_data+=sizeof(int32_t);
     //next field, column name
   int32_t nameSize = columnName.length();
-  memcpy(data+offset_in_data, &nameSize, sizeof(nameSize);
+  memcpy(data+offset_in_data, &nameSize, sizeof(nameSize));
     offset_in_data+=sizeof(nameSize);
     memcpy(data+offset_in_data, columnName.c_str(), nameSize);
     offset_in_data+=nameSize;
