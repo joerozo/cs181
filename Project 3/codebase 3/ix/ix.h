@@ -15,9 +15,13 @@ class IndexManager {
 
     public:
         static IndexManager* instance();
-
+        //createFile  - Joe
+        //destroyFile - Joe
+        //openFile    - Joe
+        //closeFile   - Joe
         // Create an index file.
         RC createFile(const string &fileName);
+            
 
         // Delete an index file.
         RC destroyFile(const string &fileName);
