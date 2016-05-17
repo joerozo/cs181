@@ -62,11 +62,89 @@ RC IndexManager::closeFile(IXFileHandle &ixfileHandle){
 
 RC IndexManager::insertEntry(IXFileHandle &ixfileHandle, const Attribute &attribute, const void *key, const RID &rid)
 {
+    uint32_t pageNum=rootPageNumber(ixfileHandle);
+    //find where entry should go
+    bool isLeaf=false;
+    void *data=malloc//finish that;
+    ixfileHandle->readPage(pageNum, data);
+    isLeaf=pageIsLeaf(data);
+    uint32_t num;
+    while (isLeaf == false) {
+        num = numOnPage(data);
+        bool match = false;
+        //offset starts past leaf indicator, number on page, and free space offset
+        unsigned offset = 3 * sizeOf(uint32_t);
+        while (match == false) {
+            if (attribute.type == TypeInt) {
+                uint32_t prevPage;
+                memcpy(prevPage, data+offset, sizeOf(uint32_t));
+                offset +=sizeOf(uint32_t);
+                int32_t currentInfo;
+                memcpy(currentInfo, data + offset, sizeOf(int32_t));
+                offset +=sizeOf(int32_t);
+                int32_t keyVal;
+                memcpy(&keyVal, key, sizeOf(int32_t));
+                if (keyVal<currentInfo) {
+                    pageNum=prevPage;
+                    match=true;
+                }
+            }
+            else if (attribute.type == TypeReal) {
+                uint32_t prevPage;
+                memcpy(prevPage, data+offset, sizeOf(uint32_t));
+                offset +=sizeOf(uint32_t);
+                float currentInfo;
+                memcpy(currentInfo, data + offset, REAL_SIZE);
+                offset +=REAL_SIZE;
+                uint32_t intKey = (int) key;
+                if (intKey<currentInfo) {
+                    pageNum=prevPage;
+                    match=true;
+                }
+            }
+
+            }
+        }
+        //by end of while (match == false) loop, pageNum is the next level down where the <key, rid> pair should go
+        ixfileHandle->readPage(pageNum, data);
+        isLeaf=pageIsLeaf(data);
+        
+    }
+    //by end of while(isLeaf == false) loop, pageNum is the leaf where the <key, rid> pair should go
+
+    //if leaf has room, insert entry
+    //else, split leaf and push split up 
+    //each node is a page, each pointer to a page is a page number 
     return -1;
+}
+
+bool IndexManager::pageIsLeaf(void *data) {
+    uint32_t isLeaf;
+    memcpy(isLeaf, data, sizeOf(uint32_t));
+    //leaf pages will have first value zero, non-leaf(internal) pages will have first value one
+    if (isLeaf==0) return true;
+    else return false;
+}
+
+uint32_t IndexManager::numOnPage(void *data) {
+    uint32_t num;
+    memcpy(num, data+sizeOf(int), sizeOf(uint32_t));
+    return num;
+}
+
+uint32_t IndexManager::rootPageNumber(IXFileHandle &ixfileHandle) {
+    void *data;
+    ixfileHandle->readPage(0, data);
+    uint32_t rootNum;
+    memcpy(rootNum, data, sizeOf(uint32_t));
+    return rootNum;
 }
 
 RC IndexManager::deleteEntry(IXFileHandle &ixfileHandle, const Attribute &attribute, const void *key, const RID &rid)
 {
+    //find where entry is 
+    //delete it 
+    //lazy deletion: do not bother with post-deletion reorganization
     return -1;
 }
 

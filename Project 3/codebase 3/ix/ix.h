@@ -56,6 +56,8 @@ class IndexManager {
 
     private:
         static IndexManager *_index_manager;
+        bool pageIsLeaf(IXFileHandle &ixfileHandle, const RID &rid);
+        int numOnPage(IXFileHandle &ixfileHandle, const RID &rid);
 };
 
 
@@ -90,6 +92,8 @@ class IXFileHandle {
 
     // Destructor
     ~IXFileHandle();
+
+    RC readPage(PageNum pageNum, void *data);
 
 	// Put the current counter values of associated PF FileHandles into variables
 	RC collectCounterValues(unsigned &readPageCount, unsigned &writePageCount, unsigned &appendPageCount);
