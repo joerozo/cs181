@@ -55,6 +55,13 @@ class IndexManager {
         ~IndexManager();
 
     private:
+        // new Child Entry
+        typedef struct
+        {
+            uint32_t pageNum; // page number
+            AttrType key; // slot number in the page
+        } childEntry;
+
         static IndexManager *_index_manager;
         bool pageIsLeaf(IXFileHandle &ixfileHandle, const RID &rid);
         int numOnPage(IXFileHandle &ixfileHandle, const RID &rid);
