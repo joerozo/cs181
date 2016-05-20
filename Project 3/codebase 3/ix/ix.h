@@ -63,8 +63,10 @@ class IndexManager {
         } childEntry;
 
         static IndexManager *_index_manager;
-        bool pageIsLeaf(IXFileHandle &ixfileHandle, const RID &rid);
-        int numOnPage(IXFileHandle &ixfileHandle, const RID &rid);
+        bool pageIsLeaf(void *data);
+        uint32_t getFreeSpacePointer(void *data);
+        int numOnPage(void *data);
+        uint32_t rootPageNumber(IXFileHandle &ixfileHandle);
 };
 
 
