@@ -65,12 +65,6 @@ RC IndexManager::insertEntry(IXFileHandle &ixfileHandle, const Attribute &attrib
     uint32_t pageNum=rootPageNumber(ixfileHandle);
     void *newChildEntry;
     RC rc = insertRecursive(ixfileHandle, attribute, key, rid, newChildEntry, pageNum);
-
-    
-        ixfileHandle->readPage(pageNum, data);
-        isLeaf=pageIsLeaf(data);
-    //by end of while(isLeaf == false) loop, pageNum is the leaf where the <key, rid> pair should go
-
     return rc;
 }
 
@@ -140,7 +134,7 @@ RC IndexManager::insertRecursive(IXFileHandle &ixfileHandle, const Attribute &at
             //child was split, must insert new child into current page
             if (PAGE_SIZE-getFreeSpacePointer(data) >= sizeOf(newChildEntry.key) + sizeOf(uint32_t)) {
                 //if here, there is room on current page for this entry. find spot to insert.
-                num = numOnPage(data);
+                uint32_t num = numOnPage(data);
                 bool match = false;
                 //offset starts past leaf indicator, number on page, and free space offset
                 unsigned offset = 3 * sizeOf(uint32_t);
@@ -206,7 +200,99 @@ RC IndexManager::insertRecursive(IXFileHandle &ixfileHandle, const Attribute &at
         else{
             //current node does not have space, must be split
             void *newpage=malloc(PAGE_SIZE);
-            
+            uint32_t num = numOnPage(data)+1; //the one is for the one about to be inserted 
+            uint32_t halfnum = num/2;
+            uint32_t secondhalf=num-halfnum; //same if even, not if odd
+            //overwrite number and free space pointer in original page
+            unsigned offset = sizeOf(uint32_t);
+            memcpy(data+ offset, halfnum, sizeOf(uint32_t)); //new number is on new page
+            //scan through data of old page to find cutoff point and insertion point for new data and write to new page
+            uint32_t numScanned=0;
+            bool insert_in_first_page=false;
+            unsigned loc_in_first_page;
+            bool match = false;
+            //offset starts past leaf indicator, number on page, and free space offset
+            unsigned offset = 3 * sizeOf(uint32_t);
+            unsigned newpageoffset =offset;
+                while (match == false) {
+                    if (attribute.type == TypeInt) {
+                        offset +=sizeOf(uint32_t);
+                        int32_t currentInfo;
+                        memcpy(currentInfo, data + offset, sizeOf(int32_t));
+                        offset +=sizeOf(int32_t);
+                        int32_t keyVal;
+                        memcpy(&keyVal, key, sizeOf(int32_t));
+                        if (keyVal<currentInfo) { //need to insert the newchild now
+                            //should it go onto new page?
+                            if (numScanned>halfnum) {
+                                memcpy(newpage+newpageoffset, newChildEntry.pageNum, sizeOf(uint32_t));
+                                newpageoffset += sizeOf(uint32_t);
+                                memcpy(newpage+newpageoffset, newChildEntry.key, sizeOf(int32_t));
+                                newpageoffset += sizeOf(int32_t);
+                            }
+                            else {
+                                //add it to this page at end to avoid overriding data (can't push rest now because no room)
+                                insert_in_first_page=true;
+                                loc_in_first_page = offset;
+                            }
+                        }
+                        else {
+                            //not inserting new child
+                            //check if past halfway point
+                            if (numScanned>halfnum) {
+                                //we need to write the data from here on to the new page
+                                memcpy(newpage+newpageoffset, data+offset-sizeOf(int32_t)-sizeOf(uint32_t), sizeOf(uint32_t));
+                                newpageoffset+=sizeOf(uint32_t);
+                                memcpy(newpage+newpageoffset, data+offset-sizeOf(int32_t), sizeOf(int32_t));
+                                newpageoffset+=sizeOf(int32_t);
+                            }
+                        }
+                        numScanned++;
+                    }
+                    else if (attribute.type == TypeReal) {
+                        offset +=sizeOf(uint32_t);
+                        float currentInfo;
+                        memcpy(currentInfo, data + offset, REAL_SIZE);
+                        offset +=REAL_SIZE;
+                        float keyval;
+                        memcpy(&keyval, key, REAL_SIZE);
+                        if (keyval<currentInfo) {
+                            //first, move the rest of the data forward by the amount of the key and the pointer
+                            memcpy(data+offset+REAL_SIZE+sizeOf(uint32_t), data+offset-sizeOf(uint32_t)-REAL_SIZE, sizeOf(data+offset-sizeOf(uint32_t)-REAL_SIZE));
+                            //second, copy the information into data
+                            memcpy(data+offset, newChildEntry.pageNum, sizeOf(uint32_t));
+                            offset+=sizeOf(uint32_t);
+                            memcpy(data+offset, newChildEntry.key, REAL_SIZE);
+                            match=true;
+                        }
+                    }
+                    else { //type is varchar
+                        offset +=sizeOf(uint32_t);
+                        uint32_t currentInfoSize;
+                        string currentInfo;
+                        memcpy(currentInfoSize, data + offset, sizeOf(int32_t));
+                        offset +=sizeOf(int32_t);
+                        memcpy(currentInfo, data+offset, currentInfoSize);
+                        offset+=currentInfoSize;
+                        string KeyVal=malloc(sizeOf(key));
+                        memcpy(&keyval, key, sizeOf(key));
+                        if (KeyVal.compare(currentInfo) >0) {
+                            //first, move the rest of the data forward by the amount of the key and the pointer
+                            memcpy(data+offset+sizeOf(newChildEntry.key)+sizeOf(uint32_t), data+offset-sizeOf(uint32_t)-sizeOf(newChildEntry.key), sizeOf(data+offset-sizeOf(uint32_t)-sizeOf(newChildEntry.key)));
+                            //second, copy the information into data
+                            memcpy(data+offset, newChildEntry.pageNum, sizeOf(uint32_t));
+                            offset+=sizeOf(uint32_t);
+                            memcpy(data+offset, newChildEntry.key, sizeOf(newChildEntry.key));
+                            match=true;
+                        }
+                    }
+            //write to new page
+            memcpy(newpage, (uint32_t) 1, sizeOf(uint32_t)); //page is non leaf
+            offset = sizeOf(uint32_t);
+            memcpy(newpage+offset, secondhalf, sizeOf(uint32_t)); //page will have second half number of entries
+            offset+=sizeOf(uint32_t); 
+
+
         }
     }
 
@@ -243,10 +329,125 @@ uint32_t IndexManager::rootPageNumber(IXFileHandle &ixfileHandle) {
 
 RC IndexManager::deleteEntry(IXFileHandle &ixfileHandle, const Attribute &attribute, const void *key, const RID &rid)
 {
+    uint32_t pageNum=rootPageNumber(ixfileHandle);
+    RC rc = deleteRecursive(ixfileHandle, attribute, key, rid, pageNum);
+    return rc;
+}
+
+RC IndexManager::deleteRecursive(IXFileHandle &ixfileHandle, const Attribute &attribute, const void *key, const RID &rid, uint32_t pageNum){
     //find where entry is 
-    //delete it 
-    //lazy deletion: do not bother with post-deletion reorganization
-    return -1;
+    bool isLeaf=false;
+    void *data=malloc(PAGE_SIZE);
+    ixfileHandle->readPage(pageNum, data);
+    isLeaf=pageIsLeaf(data);
+    if (!isLeaf) {
+        num = numOnPage(data);
+        bool match = false;
+        //offset starts past leaf indicator, number on page, and free space offset
+        unsigned offset = 3 * sizeOf(uint32_t);
+        while (match == false) {
+            if (attribute.type == TypeInt) {
+                uint32_t prevPage;
+                memcpy(prevPage, data+offset, sizeOf(uint32_t));
+                offset +=sizeOf(uint32_t);
+                int32_t currentInfo;
+                memcpy(currentInfo, data + offset, sizeOf(int32_t));
+                offset +=sizeOf(int32_t);
+                int32_t keyVal;
+                memcpy(&keyVal, key, sizeOf(int32_t));
+                if (keyVal<currentInfo) {
+                    pageNum=prevPage;
+                    match=true;
+                }
+            }
+            else if (attribute.type == TypeReal) {
+                uint32_t prevPage;
+                memcpy(prevPage, data+offset, sizeOf(uint32_t));
+                offset +=sizeOf(uint32_t);
+                float currentInfo;
+                memcpy(currentInfo, data + offset, REAL_SIZE);
+                offset +=REAL_SIZE;
+                float keyval;
+                memcpy(&keyval, key, REAL_SIZE);
+                if (keyval<currentInfo) {
+                    pageNum=prevPage;
+                    match=true;
+                }
+            }
+            else { //type is varchar
+                uint32_t prevPage;
+                memcpy(prevPage, data+offset, sizeOf(uint32_t));
+                offset +=sizeOf(uint32_t);
+                uint32_t currentInfoSize;
+                string currentInfo;
+                memcpy(currentInfoSize, data + offset, sizeOf(int32_t));
+                offset +=sizeOf(int32_t);
+                memcpy(currentInfo, data+offset, currentInfoSize);
+                offset+=currentInfoSize;
+                string KeyVal=malloc(sizeOf(key));
+                memcpy(&keyval, key, sizeOf(key));
+                if (KeyVal.compare(currentInfo) >0) {
+                    pageNum=prevPage;
+                    match=true;
+                }
+            }
+        }
+        //by end of while (match == false) loop, pageNum is the next level down where the <key, rid> pair should go
+        RC rc =deleteRecursive(ixfileHandle, attribute, key, rid, pageNum);
+        return rc;
+    }
+    //in this case, we are at the leaf
+    else{
+        //delete it and move everything else up - lazy delete, no combining pages
+        uint32_t num = numOnPage(data);
+                bool match = false;
+                //offset starts past leaf indicator, number on page, and free space offset
+                unsigned offset = 3 * sizeOf(uint32_t);
+                while (match == false) {
+                    if (attribute.type == TypeInt) {
+                        offset +=sizeOf(uint32_t);
+                        int32_t currentInfo;
+                        memcpy(currentInfo, data + offset, sizeOf(int32_t));
+                        offset +=sizeOf(int32_t);
+                        int32_t keyVal;
+                        memcpy(&keyVal, key, sizeOf(int32_t));
+                        if (keyVal==currentInfo) {
+                            //move the rest of the data back by the amount of the key and the pointer
+                            memcpy(data+offset-sizeOf(int32_t)-sizeOf(uint32_t), data+offset, sizeOf(data+offset));
+                            match=true;
+                        }
+                    }
+                    else if (attribute.type == TypeReal) {
+                        offset +=sizeOf(uint32_t);
+                        float currentInfo;
+                        memcpy(currentInfo, data + offset, REAL_SIZE);
+                        offset +=REAL_SIZE;
+                        float keyval;
+                        memcpy(&keyval, key, REAL_SIZE);
+                        if (keyval==currentInfo) {
+                             //move the rest of the data back by the amount of the key and the pointer
+                            memcpy(data+offset-REAL_SIZE-sizeOf(uint32_t), data+offset, sizeOf(data+offset));
+                            match=true;
+                        }
+                    }
+                    else { //type is varchar
+                        offset +=sizeOf(uint32_t);
+                        uint32_t currentInfoSize;
+                        string currentInfo;
+                        memcpy(currentInfoSize, data + offset, sizeOf(int32_t));
+                        offset +=sizeOf(int32_t);
+                        memcpy(currentInfo, data+offset, currentInfoSize);
+                        offset+=currentInfoSize;
+                        string KeyVal=malloc(sizeOf(key));
+                        memcpy(&keyval, key, sizeOf(key));
+                        if (KeyVal.compare(currentInfo) ==0) {
+                             //move the rest of the data back by the amount of the key and the pointer
+                            memcpy(data+offset-sizeOf(currentInfo)-sizeOf(uint32_t), data+offset, sizeOf(data+offset));
+                            match=true;
+                        }
+                    }
+                }//end of while loop
+        }
 }
 
 
@@ -262,6 +463,82 @@ RC IndexManager::scan(IXFileHandle &ixfileHandle,
 }
 
 void IndexManager::printBtree(IXFileHandle &ixfileHandle, const Attribute &attribute) const {
+    //outputs to cout
+    cout<<"{"<< endl;
+    uint32_t root=rootPageNumber(ixfileHandle);
+    printRecursive(ixfileHandle, attribute, root);
+    cout<<"}"<<endl;
+}
+
+void IndexManager::printRecursive(IXFileHandle &ixfileHandle, const Attribute &attribute, int pageNum){
+    bool isLeaf=false;
+    void *data=malloc(PAGE_SIZE);
+    ixfileHandle->readPage(pageNum, data);
+    isLeaf=pageIsLeaf(data);
+    if (!isLeaf) { //non leaf node
+        std::vector<attribute.type> keys;
+        std::vector<uint32_t> children;
+        unsigned offset = 3 * sizeOf(uint32_t);
+        for(int i = 0; i<numOnPage(data);i++){
+            if (attribute.type == TypeInt) {
+                uint32_t prevPage;
+                memcpy(prevPage, data+offset, sizeOf(uint32_t));
+                offset +=sizeOf(uint32_t);
+                int32_t currentInfo;
+                memcpy(currentInfo, data + offset, sizeOf(int32_t));
+                offset +=sizeOf(int32_t);
+                keys.push_back(currentInfo);
+                children.push_back(prevPage);
+            }
+            else if (attribute.type == TypeReal) {
+                uint32_t prevPage;
+                memcpy(prevPage, data+offset, sizeOf(uint32_t));
+                offset +=sizeOf(uint32_t);
+                float currentInfo;
+                memcpy(currentInfo, data + offset, REAL_SIZE);
+                offset +=REAL_SIZE;
+                keys.push_back(currentInfo);
+                children.push_back(prevPage);
+            }
+            else { //type is varchar
+                uint32_t prevPage;
+                memcpy(prevPage, data+offset, sizeOf(uint32_t));
+                offset +=sizeOf(uint32_t);
+                uint32_t currentInfoSize;
+                string currentInfo;
+                memcpy(currentInfoSize, data + offset, sizeOf(int32_t));
+                offset +=sizeOf(int32_t);
+                memcpy(currentInfo, data+offset, currentInfoSize);
+                offset+=currentInfoSize;
+                keys.push_back(currentInfo);
+                children.push_back(prevPage);
+            }
+        }//end of for loop
+        cout<<"keys:[";
+        for (i=0; i<keys.size();i++){
+            cout<<keys.at(i)<<",";
+        }
+        cout<<"],"<<endl;
+        cout<<"children: [";
+        for (i=0; i<children.size();i++){
+            printRecursize(ixfileHandle, attribute, children.at(i));
+        }
+        cout<<"]"
+        }
+        else{ //leaf node
+            cout<<"{ keys: [";
+            unsigned offset = 4 * sizeOf(uint32_t);
+            for(int i = 0; i<numOnPage(data);i++){
+                int32_t currentkey;
+                memcpy(currentKey, data+offset, sizeOf(int32_t));
+                offset +=sizeOf(int32_t);
+                RID currentRID;
+                memcpy(currentRID, data + offset, sizeOf(RID));
+                offset +=sizeOf(RID);
+                cout<<currentkey<<":[ ("<<currentRID.pageNum<<","<<currentRID.slot<<")] }"
+                children.push_back(prevPage);
+            }//end of for loop
+        }
 }
 
 IX_ScanIterator::IX_ScanIterator()

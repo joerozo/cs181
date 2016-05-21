@@ -61,6 +61,9 @@ class IndexManager {
             AttrType key; // slot number in the page
         } childEntry;
 
+        RC insertRecursive(IXFileHandle &ixfileHandle, const Attribute &attribute, const void *key, const RID &rid, childEntry *newChildEntry, uint32_t pageNum);
+        RC deleteRecursive(IXFileHandle &ixfileHandle, const Attribute &attribute, const void *key, const RID &rid, uint32_t pageNum);
+        void printRecursive(IXFileHandle &ixfileHandle, const Attribute &attribute, int pageNum);
         static IndexManager *_index_manager;
         bool pageIsLeaf(void *data);
         uint32_t getFreeSpacePointer(void *data);
@@ -105,6 +108,8 @@ class IXFileHandle {
     ~IXFileHandle();
 
     RC readPage(PageNum pageNum, void *data);
+    RC writePage(PageNum pageNum, void *data);
+    RC appendPage(PageNum pageNum, void *data);
 
 	// Put the current counter values of associated PF FileHandles into variables
 	RC collectCounterValues(unsigned &readPageCount, unsigned &writePageCount, unsigned &appendPageCount);
