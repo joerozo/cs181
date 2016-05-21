@@ -49,7 +49,6 @@ class IndexManager {
 
         // Print the B+ tree in pre-order (in a JSON record format)
         void printBtree(IXFileHandle &ixfileHandle, const Attribute &attribute) const;
-
     protected:
         IndexManager();
         ~IndexManager();
@@ -84,6 +83,9 @@ class IX_ScanIterator {
 
         // Terminate index scan
         RC close();
+    private:
+        IndexManager idm;
+        IXFileHandle ixfh;
 };
 
 

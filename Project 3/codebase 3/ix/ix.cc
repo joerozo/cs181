@@ -274,14 +274,36 @@ IX_ScanIterator::~IX_ScanIterator()
 
 RC IX_ScanIterator::getNextEntry(RID &rid, void *key)
 {
-    return -1;
+    void *data=malloc(PAGE_SIZE);
+    uint32_t pageNum  = idm.rootPageNumber(ixfh);
+    unsigned offset =  sizeOf(uint32_t);
+    bool found = false;
+    ixfileHandle->readPage(pageNum, data);
+    while(found ! = false)
+    {        
+        ixfileHandle->readPage(pageNum, data);
+
+        for(offset = sizeof(uint32_t); offset < PAGE_SIZE && found != true; offset += 3*sizeof(uint32_t))
+        {
+            uint32_t recKey;
+            memcpy(&recKey, data+offset, sizeof(uint32_t));
+            if(memcmp(recKey, key, sizeof(uint32_t)) == 0)
+            {
+                found = true;
+                return SUCCESS;
+            }
+        }
+    }
+
+
+
+    return IX_EOF;
 }
 
 RC IX_ScanIterator::close()
 {
-    return -1;
+    idm.closeFile(ixfh);
 }
-
 
 IXFileHandle::IXFileHandle()
 {
