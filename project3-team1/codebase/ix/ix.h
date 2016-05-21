@@ -15,13 +15,9 @@ class IndexManager {
 
     public:
         static IndexManager* instance();
-        //createFile  - Joe
-        //destroyFile - Joe
-        //openFile    - Joe
-        //closeFile   - Joe
+
         // Create an index file.
         RC createFile(const string &fileName);
-            
 
         // Delete an index file.
         RC destroyFile(const string &fileName);
@@ -109,7 +105,7 @@ class IXFileHandle {
 
     RC readPage(PageNum pageNum, void *data);
     RC writePage(PageNum pageNum, void *data);
-    RC appendPage(PageNum pageNum, void *data);
+    int appendPage(void *data); //returns number of pages
 
 	// Put the current counter values of associated PF FileHandles into variables
 	RC collectCounterValues(unsigned &readPageCount, unsigned &writePageCount, unsigned &appendPageCount);

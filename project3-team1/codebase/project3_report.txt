@@ -1,0 +1,35 @@
+1. Basic information
+Team number  : 1 
+#1 Submitter ID : 1436764
+#1 Student Name : Alix Feinsod
+
+
+2. Index Entry Format
+- Show your index entry design (structure). 
+first page is just a pointer to page number that is root. Other pages: first, boolean, if 0 the page is a leaf, if 1 the page is not a leaf. Rest is below in page format.
+
+3. Page Format
+- Show your internal-page (non-leaf node) design. Non-leaf: 1, then N, the number of entries, then a free space pointer, then child, key, child, key, ..., key, child, free space
+
+- Show your leaf-page (leaf node) design. Leaf: 0, then n, the number of entries, pointer to previous page, pointer to next page, then entries (<key,rid>), then free space
+
+4. Implementation Detail
+- Have you added your own source file (.cc or .h)? No
+
+5. Other 
+Our method assignments were as follows:
+
+IX Interface
+
+    createFile  - Joe
+    destroyFile - Joe
+    openFile    - Joe
+    closeFile   - Joe
+    insertEntry - Alix
+    deleteEntry - Alix
+    scan        - Alec 
+    printBtree  - Alix
+
+IX_ScanIterator - Alec
+IXFileHandle    - Alec
+

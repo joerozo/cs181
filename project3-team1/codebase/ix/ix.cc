@@ -291,8 +291,24 @@ RC IndexManager::insertRecursive(IXFileHandle &ixfileHandle, const Attribute &at
             offset = sizeOf(uint32_t);
             memcpy(newpage+offset, secondhalf, sizeOf(uint32_t)); //page will have second half number of entries
             offset+=sizeOf(uint32_t); 
-
-
+            int newpagenum = ixfileHandle.appendPage(newpage);
+            //split is done, pass newchild up 
+            newChildEntry.pageNum= newpagenum;
+            newChildEntry.key=firstKeyNewPage;
+            if(pageNum==rootPageNumber(data)) {
+                //we just split the root
+                //create a new node to point to 2 split pages
+                void *newroot = malloc(PAGE_SIZE);
+                memcpy(newroot, 1, sizeOf(uint32_t));
+                memcpy(newroot+sizeOf(uint32_t), 1, sizeOf(uint32_t));
+                memcpy(newroot+offset, pageNum, sizeOf(pageNum));
+                offset+=sizeOf(pageNum);
+                memcpy(newroot+offset, newChildEntry, sizeOf(newChildEntry));
+                uint32_t newrootnum = ixfileHandle.appendPage(newroot);
+                //make the first page point to this new node
+                void *newfirstpage=malloc(PAGE_SIZE);
+                memcpy(newfirstpage, newrootnum, sizeOf(uint32_t));
+            }
         }
     }
 
@@ -450,7 +466,6 @@ RC IndexManager::deleteRecursive(IXFileHandle &ixfileHandle, const Attribute &at
         }
 }
 
-
 RC IndexManager::scan(IXFileHandle &ixfileHandle,
         const Attribute &attribute,
         const void      *lowKey,
@@ -571,9 +586,6 @@ RC IX_ScanIterator::getNextEntry(RID &rid, void *key)
             }
         }
     }
-
-
-
     return IX_EOF;
 }
 
