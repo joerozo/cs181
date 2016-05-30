@@ -196,12 +196,24 @@ class Filter : public Iterator {
         Filter(Iterator *input,               // Iterator of input R
                const Condition &condition     // Selection condition
         );
-        ~Filter(){};
+        ~Filter();
 
-        RC getNextTuple(void *data) {return QE_EOF;};
+        RC getNextTuple(void *data) ;
         // For attribute in vector<Attribute>, name it as rel.attr
-        void getAttributes(vector<Attribute> &attrs) const{};
-};
+        void getAttributes(vector<Attribute> &attrs) const;
+    private:
+        Iterator *iter;
+        CompOp op;
+        vector<Attribute> attrs;
+        void* data;
+        void* value;
+        AttrType type;
+        unsigned pos;
+
+    private:
+        void ReadTupleField(void * inputData, void *outputData, vector<Attribute> attrs, int pos, AttrType type);
+        bool Compare(const void *attribute, const void *condition, AttrType type, CompOp compOp);
+}
 
 
 class Project : public Iterator {
