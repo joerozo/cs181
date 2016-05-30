@@ -2,7 +2,7 @@
 #define _qe_h_
 
 #include <vector>
-
+#include <string.h>
 #include "../rbf/rbfm.h"
 #include "../rm/rm.h"
 #include "../ix/ix.h"
