@@ -120,7 +120,7 @@ class IndexScan : public Iterator
     // A wrapper inheriting Iterator over IX_IndexScan
     public:
         RelationManager &rm;
-        RM_IndexScanIterator *iter;
+        Iterator *iter;
         string tableName;
         string attrName;
         vector<Attribute> attrs;

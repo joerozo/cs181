@@ -44,7 +44,7 @@ RC Filter::getNextTuple(void *data): itr(input)
 		ReadTupleField(data, this->value, attrs, pos, type);
 	}while(!Compare(this->value, condition, type, op))
 	
-	return result
+	return result;
 }
 
 
@@ -184,4 +184,5 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 			break;
 		
 	}
+	return result;
 }
