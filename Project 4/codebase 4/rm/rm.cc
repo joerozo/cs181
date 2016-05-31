@@ -65,9 +65,7 @@ RC RelationManager::createIndex(const string &tableName, string &attributeName){
     while(rm_scan.getNextTuple(new_rid, new_attribute) != RBFM_EOF;){
         RC new_rc = ix->insertEntry(ix_name, new_attribute, allocate_data, allocate_data);
     }
-        
-    int success_val = 0;
-    }
+    
 
 }
 
