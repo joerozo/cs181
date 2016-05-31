@@ -122,8 +122,8 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 			}
 			break;
 		case TypeReal:
-			int attr = *(float *) attribute;
-			int cond = *(float *) condition;
+			float attr = *(float *) attribute;
+			float cond = *(float *) condition;
 
 			switch(op)
 			{
@@ -142,7 +142,7 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 				case GE_OP:
 					result = (attr >= cond);
 					break;			
-				case NE_OP:
+				case NE_OP: 
 					result = (attr != cond);
 					break;		
 				case NO_OP:
@@ -152,9 +152,11 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 		
 		case TypeVarChar:
 			int attributeLength = *(int *) attribute;
-			string attr((char *) attribute + sizeof(int), attributeLength);
+			string attr;
+			attr.assign((char *) attribute + sizeof(int), 0, attributeLength);
 			int conditionLength = *(int *) condition;
-			string cond((char *) condition + sizeof(int), conditionLength);
+			string cond;
+			cond.assign((char *) condition + sizeof(int),0 ,conditionLength);
 
 			switch(op)
 			{
