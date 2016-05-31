@@ -60,15 +60,23 @@ RC RelationManager::createIndex(const string &tableName, string &attributeName){
             new_attribute.length = attrs[i].length;
         }
     }
-
     // need to go through the records and build the index //
     while(rm_scan.getNextTuple(new_rid, new_attribute) != RBFM_EOF;){
         RC new_rc = ix->insertEntry(ix_name, new_attribute, allocate_data, allocate_data);
     }
-    
-
+    return SUCCESS;    
+}
+//RC IndexManager::destroyFile(const string &fileName)//
+RC RelationManager::destroyIndex(const string &tableName, const string &attributeName){
+    string ix_name = tableName + ".ix" ; 
+    IndexManager->destroyFile(ix_name);
 }
 
+RC RelationManager::RC indexScan(const string &tableName, const string &attributeName, 
+                                const void *lowKey, const void *highKey, bool lowKeyInclusive,  
+                                bool highKeyInclusive, RM_IndexScanIterator &rm_IndexScanIterator){
+
+}
 RelationManager::RelationManager()
 : tableDescriptor(createTableDescriptor()), columnDescriptor(createColumnDescriptor())
 {
@@ -290,7 +298,7 @@ RC RelationManager::getAttributes(const string &tableName, vector<Attribute> &at
         offset += nameLen;
         attr.attr.name = string(name);
 
-        // read in type
+        // read in typehttps://open.spotify.com/track/2xyQ5JTPmz3MteCTxcB7ED
         int32_t type;
         memcpy(&type, (char*) data + offset, INT_SIZE);
         offset += INT_SIZE;
