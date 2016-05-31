@@ -214,7 +214,7 @@ class Filter : public Iterator {
     private:
         void ReadTupleField(void * inputData, void *outputData, vector<Attribute> attrs, int pos, AttrType type);
         bool Compare(const void *attribute, const void *condition, AttrType type, CompOp compOp);
-}
+};
 
 
 class Project : public Iterator {

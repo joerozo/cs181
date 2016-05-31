@@ -14,7 +14,7 @@ Filter::Filter(Iterator* input, const Condition &condition) : iter(input) // cal
 	//getting attributes
 	this->iter->getAttributes(attrs);
 
-	for(unsigned i = 0; i < attrs.size(); ,i++)
+	for(unsigned i = 0; i < attrs.size(); i++)
 	{
 		if(attrs[i].name == condition.lhsAttr)
 		{
@@ -30,7 +30,7 @@ Filter::~Filter()
 	free(value);
 }
 
-RC Filter::getNextTuple(void *data): itr(input) 
+RC Filter::getNextTuple(void *data): iter(input) 
 {
 	RC result;
 	do
