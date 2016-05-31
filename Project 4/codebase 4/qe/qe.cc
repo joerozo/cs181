@@ -95,55 +95,55 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 	switch(type)
 	{
 		case TypeInt:
-			int attr = *(int *) attribute;
-			int cond = *(int *) condition;
+			int attrInt = *(int*)attribute;
+			int condInt = *(int*)condition;
 			switch(op)
 			{
 				case EQ_OP:
-					result = (attr == cond);
+					result = (attrInt == condInt);
 					break;
 				case LT_OP:
-					result = (attr < cond);
+					result = (attrInt < condInt);
 					break;			
 				case GT_OP:
-					result = (attr > cond);
+					result = (attrInt > condInt);
 					break;
 				case LE_OP:
-					result = (attr <= cond);
+					result = (attrInt <= condInt);
 					break;			
 				case GE_OP:
-					result = (attr >= cond);
+					result = (attrInt >= condInt);
 					break;			
 				case NE_OP:
-					result = (attr != cond);
+					result = (attrInt != condInt);
 					break;		
 				case NO_OP:
 					break;
 			}
 			break;
 		case TypeReal:
-			float attr = *(float *) attribute;
-			float cond = *(float *) condition;
+			float attrFloat = *(float *) attribute;
+			float condFloat = *(float *) condition;
 
 			switch(op)
 			{
 				case EQ_OP:
-					result = (attr == cond);
+					result = (attrFloat == condFloat);
 					break;
 				case LT_OP:
-					result = (attr < cond);
+					result = (attrFloat < condFloat);
 					break;			
 				case GT_OP:
-					result = (attr > cond);
+					result = (attrFloat > condFloat);
 					break;
 				case LE_OP:
-					result = (attr <= cond);
+					result = (attrFloat <= condFloat);
 					break;			
 				case GE_OP:
-					result = (attr >= cond);
+					result = (attrFloat >= condFloat);
 					break;			
 				case NE_OP: 
-					result = (attr != cond);
+					result = (attrFloat != condFloat);
 					break;		
 				case NO_OP:
 					break;
@@ -152,31 +152,31 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 		
 		case TypeVarChar:
 			int attributeLength = *(int *) attribute;
-			string attr;
-			attr.assign(attribute + sizeof(int), 0, attributeLength);
+			string attrStr;
+			attrStr.assign(attribute + sizeof(int), 0, attributeLength);
 			int conditionLength = *(int *) condition;
-			string cond;
-			cond.assign(condition + sizeof(int),0 ,conditionLength);
+			string condStr;
+			condStr.assign(condition + sizeof(int),0 ,conditionLength);
 
 			switch(op)
 			{
 				case EQ_OP:
-					result = strcmp(attr.c_str() , cond.c_str()) == 0;
+					result = strcmp(attrStr.c_str() , condStr.c_str()) == 0;
 					break;
 				case LT_OP:
-					result = strcmp(attr.c_str() , cond.c_str()) < 0;
+					result = strcmp(attrStr.c_str() , condStr.c_str()) < 0;
 					break;			
 				case GT_OP:
-					result = strcmp(attr.c_str() , cond.c_str()) > 0;
+					result = strcmp(attrStr.c_str() , condStr.c_str()) > 0;
 					break;
 				case LE_OP:
-					result = strcmp(attr.c_str() , cond.c_str()) <= 0;
+					result = strcmp(attrStr.c_str() , condStr.c_str()) <= 0;
 					break;			
 				case GE_OP:
-					result = strcmp(attr.c_str() , cond.c_str()) >= 0;
+					result = strcmp(attrStr.c_str() , condStr.c_str()) >= 0;
 					break;			
 				case NE_OP:
-					result = strcmp(attr.c_str() , cond.c_str()) != 0;
+					result = strcmp(attrStr.c_str() , condStr.c_str()) != 0;
 					break;		
 				case NO_OP:
 					break;
