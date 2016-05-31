@@ -153,10 +153,10 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 		case TypeVarChar:
 			int attributeLength = *(int *) attribute;
 			string attr;
-			attr.assign((char *) attribute + sizeof(int), 0, attributeLength);
+			attr.assign(attribute + sizeof(int), 0, attributeLength);
 			int conditionLength = *(int *) condition;
 			string cond;
-			cond.assign((char *) condition + sizeof(int),0 ,conditionLength);
+			cond.assign(condition + sizeof(int),0 ,conditionLength);
 
 			switch(op)
 			{
