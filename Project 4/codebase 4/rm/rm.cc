@@ -1,5 +1,6 @@
 
 #include "rm.h"
+#include "ix.cc"
 
 #include <algorithm>
 #include <cstring>
@@ -72,11 +73,53 @@ RC RelationManager::destroyIndex(const string &tableName, const string &attribut
     IndexManager->destroyFile(ix_name);
 }
 
-RC RelationManager::RC indexScan(const string &tableName, const string &attributeName, 
+RC RelationManager::indexScan(const string &tableName, const string &attributeName, 
                                 const void *lowKey, const void *highKey, bool lowKeyInclusive,  
                                 bool highKeyInclusive, RM_IndexScanIterator &rm_IndexScanIterator){
+    string ix_name = tableName + ".ix";
+    FileHandle handle;
+    RC rc = rbfm->openFile(ix_name, handle);
 
+    vector<Attribute> ix_attributes;
+    Attribute new_attr;
+    new_attr.name = attributeName;
+    RC rc2 = getAttributes(ix_name, ix_attributes);
+
+    for(int i = 0; i < ix_attributes.length(); i++){
+        if(new_attr.name.compare(ix_attributes[i])==0){
+            new_attr.length = ix_attributes[i].length;
+            new_attr.type = ix_attributes[i].type;
+        }
+    }
+    Attribute attr_x;
+    RC rc3 = IndexManager::scan(handle, attr_x, lowKey, highKey, lowKeyInclusive, highKeyInclusive, rm_IndexScanIterator);
+
+    return 1;
 }
+
+
+/*This method gets the attributes (attrs) of the 
+table called tableName by looking in the catalog 
+tables. Return an error if a table called 
+tableName does not exist.
+
+RC IndexManager::scan(IXFileHandle &ixfileHandle,
+        const Attribute &attribute,
+        const void      *lowKey,
+        const void      *highKey,
+        bool            lowKeyInclusive,
+        bool            highKeyInclusive,
+        IX_ScanIterator &ix_ScanIterator)
+{
+    return ix_ScanIterator.initialize(ixfileHandle, attribute, lowKey, highKey, lowKeyInclusive, highKeyInclusive);
+}
+
+*/
+
+
+
+
+
 RelationManager::RelationManager()
 : tableDescriptor(createTableDescriptor()), columnDescriptor(createColumnDescriptor())
 {
