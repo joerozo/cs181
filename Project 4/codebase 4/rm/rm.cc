@@ -3,8 +3,16 @@
 
 #include <algorithm>
 #include <cstring>
+#include <iostream>
+#include <string>
+#include <sys/stat.h>
+#include <string.h>
+#include <stdexcept>
+#include <stdio.h>
+
 
 RelationManager* RelationManager::_rm = 0;
+RecordBasedFileManager* RelationManager::_rbfm = 0;
 
 RelationManager* RelationManager::instance()
 {
@@ -12,6 +20,55 @@ RelationManager* RelationManager::instance()
         _rm = new RelationManager();
 
     return _rm;
+}
+
+RC RelationManager::createIndex(const string &tableName, string &attributeName){
+    string ix_name = tableName + ".ix" ; 
+
+    if(ix->createFile(index_name)!= SUCCESS){
+        return -1;
+    }
+
+    FileHandle ixFile;
+
+    if(ix->openFile(index_name,ixFile) != SUCCESS){
+        return -1; 
+    }
+
+    //set up scanners for both layers //
+    RBFM_ScanIterator rbfm_scan;
+    RM_ScanIterator rm_scan;
+
+    vector<string> attribute_vector;
+    attribute_vector.push_back(attributeName);
+ 
+    Attribute Attribute set_attribute;;
+    Attribute set_attribute.name = attributeName;
+
+    Attribute attr_holder;
+    bool found_attr_info = false;
+
+    vector<Attribute> attrs;
+    Attribute new_attribute;
+    RC rc = getAttributes(tableName, attrs);
+    RID new_rid;
+    void* allocate_data = malloc(PAGE_SIZE);
+    // initialize the records //
+    for (int i = 0; i < attrs.size(); i++){
+        if (new_attribute.name.compare(attrs[i].name) == 0){
+            new_attribute.type = attrs[i].type;
+            new_attribute.length = attrs[i].length;
+        }
+    }
+
+    // need to go through the records and build the index //
+    while(rm_scan.getNextTuple(new_rid, new_attribute) != RBFM_EOF;){
+        RC new_rc = ix->insertEntry(ix_name, new_attribute, allocate_data, allocate_data);
+    }
+        
+    int success_val = 0;
+    }
+
 }
 
 RelationManager::RelationManager()
