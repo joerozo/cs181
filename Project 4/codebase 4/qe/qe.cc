@@ -42,7 +42,7 @@ RC Filter::getNextTuple(void *data): iter(input)
 		}
 
 		ReadTupleField(data, this->value, attrs, pos, type);
-	}while(!Compare(this->value, condition, type, op))
+	}while(!Compare(this->value, condition, type, op));
 	
 	return result;
 }
@@ -87,6 +87,12 @@ void Filter::ReadTupleField(void * inputData, void *outputData, vector<Attribute
 
 bool Filter::Compare(const void *attribute, const void *condition, AttrType type, CompOp op)
 {
+	int attrInt = 0;
+	int condInt = 0;
+	float attrFloat = 0.0;
+	float contFloat = 0.0;
+	int attributeLength = 0;
+	int conditionLength = 0;
 	if(condition == NULL)		
 		return true;
 
@@ -95,8 +101,8 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 	switch(type)
 	{
 		case TypeInt:
-			int attrInt = *(int*)attribute;
-			int condInt = *(int*)condition;
+			attrInt = *(int*)attribute;
+			condInt = *(int*)condition;
 			switch(op)
 			{
 				case EQ_OP:
@@ -122,8 +128,8 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 			}
 			break;
 		case TypeReal:
-			float attrFloat = *(float *) attribute;
-			float condFloat = *(float *) condition;
+			attrFloat = *(float *) attribute;
+			condFloat = *(float *) condition;
 
 			switch(op)
 			{
@@ -151,10 +157,10 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 			break;
 		
 		case TypeVarChar:
-			int attributeLength = *(int *) attribute;
+			attributeLength = *(int *) attribute;
 			string attrStr;
 			attrStr.assign((char*)attribute + sizeof(int), 0, attributeLength);
-			int conditionLength = *(int *) condition;
+			conditionLength = *(int *) condition;
 			string condStr;
 			condStr.assign((char*)condition + sizeof(int),0 ,conditionLength);
 
