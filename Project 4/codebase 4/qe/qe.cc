@@ -42,7 +42,7 @@ RC Filter::getNextTuple(void *data): iter(input)
 		}
 
 		ReadTupleField(data, this->value, attrs, pos, type);
-	}while(!Compare(this->value, condition, type, op));
+	}while(!Compare(this->value, data, type, op));
 	
 	return result;
 }
@@ -68,7 +68,7 @@ void Filter::ReadTupleField(void * inputData, void *outputData, vector<Attribute
 			offset += sizeof(float);
 		else 
 		{
-			int stringLength = *(int *) ((char *) input + offset);
+			int stringLength = *(int *) ((char *) inputData + offset);
 			offset += sizeof(int) + stringLength;
 		}
 	}
@@ -78,7 +78,7 @@ void Filter::ReadTupleField(void * inputData, void *outputData, vector<Attribute
 	} else if (type == TypeReal) {
 		attrLength = sizeof(float);
 	} else {
-		attrLength = *(int *) ((char *) input + offset) + sizeof(int);
+		attrLength = *(int *) ((char *) inputData + offset) + sizeof(int);
 	}
 
 	memcpy(outputData, (char *) inputData + offset, attrLength);
@@ -90,7 +90,7 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 	int attrInt = 0;
 	int condInt = 0;
 	float attrFloat = 0.0;
-	float contFloat = 0.0;
+	float condFloat = 0.0;
 	int attributeLength = 0;
 	int conditionLength = 0;
 	if(condition == NULL)		
