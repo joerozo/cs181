@@ -69,6 +69,14 @@ private:
 };
 
 
+class RM_IndexScanIterator { public:
+RM_IndexScanIterator(); // Constructor ~RM_IndexScanIterator(); // Destructor
+// "key" follows the same format as in IndexManager::insertEntry()
+RC getNextEntry(RID &rid, void *key); // Get next matching entry
+RC close();
+};
+/*IX_S*/
+
 // Relation Manager
 class RelationManager
 {
@@ -87,11 +95,17 @@ public:
 
   RC insertTuple(const string &tableName, const void *data, RID &rid);
 
+  RC createIndex(const string &tableName, const string &attributeName);
+
   RC deleteTuple(const string &tableName, const RID &rid);
 
   RC updateTuple(const string &tableName, const void *data, const RID &rid);
 
   RC readTuple(const string &tableName, const RID &rid, void *data);
+
+  RC destroyIndex(const string &tableName, const string &attributeName);
+
+  RC indexScan(const string &tableName, const string &attributeName, const void *lowKey, const void *highKey, bool lowKeyInclusive, bool highKeyInclusive, RM_IndexScanIterator &rm_IndexScanIterator);
 
   // Print a tuple that is passed to this utility method.
   // The format is the same as printRecord().

@@ -30,40 +30,37 @@ RC RelationManager::createIndex(const string &tableName, string &attributeName){
         return -1;
     }
 
-    FileHandle ixFile;
+    IXFileHandle ixFile;
 
     if(ix->openFile(index_name,ixFile) != SUCCESS){
         return -1; 
     }
 
     //set up scanners for both layers //
-    RBFM_ScanIterator rbfm_scan;
     RM_ScanIterator rm_scan;
 
     vector<string> attribute_vector;
     attribute_vector.push_back(attributeName);
  
-    Attribute Attribute set_attribute;;
+    Attribute set_attribute;
     Attribute set_attribute.name = attributeName;
-
-    Attribute attr_holder;
-    bool found_attr_info = false;
 
     vector<Attribute> attrs;
     Attribute new_attribute;
     RC rc = getAttributes(tableName, attrs);
     RID new_rid;
     void* allocate_data = malloc(PAGE_SIZE);
-    // initialize the records //
-    for (int i = 0; i < attrs.size(); i++){
-        if (new_attribute.name.compare(attrs[i].name) == 0){
-            new_attribute.type = attrs[i].type;
-            new_attribute.length = attrs[i].length;
-        }
-    }
+
     // need to go through the records and build the index //
-    while(rm_scan.getNextTuple(new_rid, new_attribute) != RBFM_EOF;){
-        RC new_rc = ix->insertEntry(ix_name, new_attribute, allocate_data, allocate_data);
+    RC x = scan(tableName,
+      attributeName,
+      NO_OP,                  // comparison type such as "<" and "="
+      "",                    // used in the comparison
+      set_attribute, // a list of projected attributes
+      rm_scan);
+
+    while(rm_scan.getNextTuple(new_rid, allocate_data) != RM_EOF;){
+        RC new_rc = ix->insertEntry(ix_name, new_attribute, allocate_data, new_rid);
     }
     return SUCCESS;    
 }
@@ -76,9 +73,9 @@ RC RelationManager::destroyIndex(const string &tableName, const string &attribut
 RC RelationManager::indexScan(const string &tableName, const string &attributeName, 
                                 const void *lowKey, const void *highKey, bool lowKeyInclusive,  
                                 bool highKeyInclusive, RM_IndexScanIterator &rm_IndexScanIterator){
-    string ix_name = tableName + ".ix";
-    FileHandle handle;
-    RC rc = rbfm->openFile(ix_name, handle);
+    string ix_name = tableName;
+    IXFileHandle handle;
+    RC rc = ix->openFile(ix_name, handle);
 
     vector<Attribute> ix_attributes;
     Attribute new_attr;
@@ -116,8 +113,28 @@ RC IndexManager::scan(IXFileHandle &ixfileHandle,
 
 */
 
+RC RM_IndexScanIterator::getNextEntry(RID &rid, void *key){
+    return ix_iter.getNextRecord(rid, data);
+}
 
+RC RM_ScanIterator::close(){
+    IndexManager *ix = IndexManager::instance();
+    ix_iter.close();
+    ix->closeFile(fileHandle);
+    return SUCCESS;
+}
 
+/*
+RC getNextEntry(RID &rid, void *key)
+This method should set its output parameters 
+rid and key to be the RID and key, 
+respectively, of the next record in the index scan. 
+This method should return RM_EOF if there are no 
+index entries left satisfying the scan condition. 
+You may assume that RM component clients will not 
+close the corresponding open index while a scan is 
+underway.
+*/
 
 
 RelationManager::RelationManager()
