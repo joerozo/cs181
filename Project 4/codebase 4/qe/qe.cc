@@ -30,7 +30,7 @@ Filter::~Filter()
 	free(value);
 }
 
-RC Filter::getNextTuple(void *data): iter(input) 
+RC Filter::getNextTuple(void *data)
 {
 	RC result;
 	do
