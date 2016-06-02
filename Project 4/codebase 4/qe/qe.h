@@ -224,9 +224,15 @@ class Project : public Iterator {
               const vector<string> &attrNames){};   // vector containing attribute names
         ~Project(){};
 
-        RC getNextTuple(void *data) {return QE_EOF;};
+        RC getNextTuple(void *data) ;
         // For attribute in vector<Attribute>, name it as rel.attr
         void getAttributes(vector<Attribute> &attrs) const{};
+        private:
+            Iterator *iter;
+            vector<Attribute> attrs;
+            void* value;
+        private:
+            void ReadTupleField(void * inputData, void *outputData, vector<Attribute> attrs, int pos, AttrType type);
 };
 
 
@@ -239,9 +245,18 @@ class INLJoin : public Iterator {
         ){};
         ~INLJoin(){};
 
-        RC getNextTuple(void *data){return QE_EOF;};
+        RC getNextTuple(void *data);
         // For attribute in vector<Attribute>, name it as rel.attr
         void getAttributes(vector<Attribute> &attrs) const{};
+        private:
+            Iterator *outeriter;
+            Iterator *inneriter;
+            CompOp op;
+            vector<Attribute> attrs;
+            void* data;
+            void* value;
+            AttrType type;
+            void* outervalue;
 };
 
 
