@@ -132,7 +132,6 @@ class IndexScan : public Iterator
         	// Set members
         	this->tableName = tableName;
         	this->attrName = attrName;
-            this->attrName = attrName;
 
             // Get Attributes from RM
             rm.getAttributes(tableName, attrs);
@@ -241,13 +240,13 @@ class INLJoin : public Iterator {
     public:
         INLJoin(Iterator *leftIn,           // Iterator of input R
                IndexScan *rightIn,          // IndexScan Iterator of input S
-               const Condition &condition   // Join condition
+               const Condition &condition   // Join condition-
         );
         ~INLJoin();
 
         RC getNextTuple(void *data);
         // For attribute in vector<Attribute>, name it as rel.attr
-        void getAttributes(vector<Attribute> &attrs) const{};
+        void getAttributes(vector<Attribute> &attrs) const;
         private:
             Iterator *outeriter;
             Iterator *inneriter;
