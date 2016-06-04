@@ -132,6 +132,7 @@ class IndexScan : public Iterator
         	// Set members
         	this->tableName = tableName;
         	this->attrName = attrName;
+            this->attrName = attrName;
 
 
             // Get Attributes from RM
