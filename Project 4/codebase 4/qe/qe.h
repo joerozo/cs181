@@ -256,6 +256,7 @@ class INLJoin : public Iterator {
             void* value;
             AttrType type;
             void* outervalue;
+            unsigned pos;
 };
 
 
