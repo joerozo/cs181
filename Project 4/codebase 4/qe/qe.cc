@@ -328,13 +328,12 @@ void INLJoin::getAttributes(vector<Attribute> &attrs) const{
 	attrs = this->attrs;
 	unsigned i;
 
-            // For attribute in vector<Attribute>, name it as rel.attr
-            for(i = 0; i < attrs.size(); ++i)
-            {
-                string tmp = tableName;
-                tmp += ".";
-                tmp += attrs.at(i).name;
-                attrs.at(i).name = tmp;
-            }
-        }
+    // For attribute in vector<Attribute>, name it as rel.attr
+    for(i = 0; i < attrs.size(); ++i)
+    {
+        string tmp = tableName;
+        tmp += ".";
+        tmp += attrs.at(i).name;
+        attrs.at(i).name = tmp;
+    }
 }
