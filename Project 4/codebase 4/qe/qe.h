@@ -220,8 +220,8 @@ class Project : public Iterator {
     // Projection operator
     public:
         Project(Iterator *input,                    // Iterator of input R
-              const vector<string> &attrNames){};   // vector containing attribute names
-        ~Project(){};
+              const vector<string> &attrNames);   // vector containing attribute names
+        ~Project();
 
         RC getNextTuple(void *data) ;
         // For attribute in vector<Attribute>, name it as rel.attr
@@ -257,6 +257,7 @@ class INLJoin : public Iterator {
             AttrType type;
             void* outervalue;
             unsigned pos;
+            string tableName;
 };
 
 
