@@ -225,11 +225,12 @@ class Project : public Iterator {
 
         RC getNextTuple(void *data) ;
         // For attribute in vector<Attribute>, name it as rel.attr
-        void getAttributes(vector<Attribute> &attrs) const{};
+        void getAttributes(vector<Attribute> &attrs) const;
         private:
             Iterator *iter;
             vector<Attribute> attrs;
             void* value;
+            unsigned int pos;
         private:
             void ReadTupleField(void * inputData, void *outputData, vector<Attribute> attrs, int pos, AttrType type);
 };
