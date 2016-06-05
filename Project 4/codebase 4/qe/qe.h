@@ -40,7 +40,7 @@ class Iterator {
         virtual RC getNextTuple(void *data) = 0;
         virtual void getAttributes(vector<Attribute> &attrs) const = 0;
         virtual ~Iterator() {};
-        virtual close() {};
+        virtual void close();
 };
 
 

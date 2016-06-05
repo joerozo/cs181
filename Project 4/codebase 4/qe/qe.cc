@@ -326,8 +326,9 @@ RC INLJoin::getNextTuple(void *data){
 		}
 	}
 	if (innerattr==outerattr) {
-		memcpy(result, outerdata, sizeof(outerdata));
-		memcpy(result+sizeof(outerdata), innerdata, sizeof(innerdata));
+		unsigned outsize=sizeof(outerdata);
+		memcpy(result, outerdata, outsize);
+		memcpy(result+outsize, innerdata, sizeof(innerdata));
 		return result;
 	}
 	result=getNextTuple(data);
