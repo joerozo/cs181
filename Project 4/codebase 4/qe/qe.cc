@@ -288,7 +288,8 @@ void Project::ReadTupleField(void * inputData, void *outputData, vector<Attribut
 INLJoin::INLJoin(Iterator *leftIn,           // Iterator of input R
                IndexScan *rightIn,          // IndexScan Iterator of input S
                const Condition &condition   // Join condition
-        ) {
+        ) 
+{
 	inneriter=rightIn;
 	outeriter=leftIn;
 	//cleaning attributes
@@ -325,27 +326,28 @@ RC INLJoin::getNextTuple(void *data){
 	void* outerData;
 
 	RC result;
-	void *initialdata;
-	result = outeriter->getNextTuple(outerData) | outeriter->getNextTuple(innerData);
-	if(result != SUCCESS)
+	do
 	{
-		return result;
-	}
-
-	unsigned offset=0;
-	for (int i=0; i<attrNames.size(); i++)
-	{
-		for (int j=0;j<attrs.size(); j++) 
+		result = outeriter->getNextTuple(data);
+		if(result != SUCCESS)
 		{
-
-			if(attrNames[i].name==attrs[j].name) {
-				ReadTupleField(initialdata, tempdata, attrs, j, type);
-				memcpy(data+offset, tempdata, sizeof(tempdata));
-			}				
+			return result;
 		}
-	}
-	return result;
 
+		ReadTupleField(outerData, this->value, attrs, pos, type);
+		do
+		{
+			result = inneriter->getNextTuple(innerData);
+			if(result != SUCCESS)
+			{
+				return result;
+			}
+			ReadTupleField(innerData, this->value, attrs, pos, type);		
+		}while(!Compare(outerData, innerData, type, op));
+
+	}while(!Compare(outerData, innerData, type, op));
+	
+	return result;
 
 }
        
