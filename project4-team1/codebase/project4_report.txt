@@ -10,6 +10,7 @@ Team number (e.g., 01) :
 
 2. Catalog information about Index
 - Show what catalog information you store for an index. 
+The catalog stores the type of index(B+ etc) as well as record info, info about physical data(volumes, tables, spaces, etc), info about tables(names, columns, types, etc), data stats (value distributions, counts, etc), and index types and target tables. 
 
 
 3. Index Nested Loop Join
