@@ -196,19 +196,11 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 Project::Project(Iterator *input, const vector<string> &attrNames) : iter(input) {
 	//cleaning attributes
 	attrs.clear();
-
+	this.attrNames=attrNames;
 	//getting attributes
 	this->iter->getAttributes(attrs);
+	this.type=type;
 
-	for(unsigned i = 0; i < attrs.size(); i++)
-	{
-		if(attrs[i].name == condition.lhsAttr)
-		{
-			pos = i;
-			value = malloc(attrs[i].length + sizeof(int));
-			break;
-		}
-	}
 }
 
 Project::~Project() {

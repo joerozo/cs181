@@ -229,8 +229,10 @@ class Project : public Iterator {
         private:
             Iterator *iter;
             vector<Attribute> attrs;
+            vector<string> attrNames;
             void* value;
             unsigned int pos;
+            AttrType type;
         private:
             void ReadTupleField(void * inputData, void *outputData, vector<Attribute> attrs, int pos, AttrType type);
 };
