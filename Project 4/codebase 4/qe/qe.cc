@@ -295,10 +295,6 @@ INLJoin::INLJoin(Iterator *leftIn,           // Iterator of input R
 	//cleaning attributes
 	attrs.clear();
 
-	//extracting conditions	
-	op         = condition.op;
-	this->type = condition.rhsValue.type;
-	this->outervalue= outeriter->getNextTuple(data);
 
 	//getting attributes
 	this->iter->getAttributes(attrs);
@@ -323,32 +319,37 @@ INLJoin::~INLJoin(){
 
 RC INLJoin::getNextTuple(void *data){
 	void* innerData;
-	void* outerData;
 
 	RC result;
-	do
+	void *innerdata;
+	result = inneriter->getNextTuple(initialdata);
+	if(result != SUCCESS)
 	{
-		result = outeriter->getNextTuple(data);
-		if(result != SUCCESS)
-		{
+		if(outervalue==NULL) {
 			return result;
 		}
-
-		ReadTupleField(outerData, this->value, attrs, pos, type);
-		do
-		{
-			result = inneriter->getNextTuple(innerData);
-			if(result != SUCCESS)
-			{
-				return result;
-			}
-			ReadTupleField(innerData, this->value, attrs, pos, type);		
-		}while(!Compare(outerData, innerData, type, op));
-
-	}while(!Compare(outerData, innerData, type, op));
-	
-	return result;
-
+		else {
+			getNextTuple(outervalue);
+			inneriter.close();
+			getNextTuple(data);
+		}
+	}
+	void *innerattr;
+	void *outerattr;
+	for (int j=0;j<attrs.size(); j++) {
+		if(condition.lhsAttr==attrs[j].name) {
+			ReadTupleField(outerdata, outerattr, attrs, j, type);
+		}
+		if(condition.rhsAttr==attrs[j].name) {
+			ReadTupleField(innerdata, innerattr, attrs, j, type);
+		}
+	}
+	if (innerattr==outerattr) {
+		memcpy(result, outerdata, sizeof(outerdata));
+		memcpy(result+sizeof(outerdata), innerdata, sizeof(innerdata));
+		return result;
+	}
+	getNextTuple(data);
 }
        
 void INLJoin::getAttributes(vector<Attribute> &attrs) const{
@@ -364,4 +365,36 @@ void INLJoin::getAttributes(vector<Attribute> &attrs) const{
         tmp += attrs.at(i).name;
         attrs.at(i).name = tmp;
     }
+}
+
+
+void INLJoin::ReadTupleField(void * inputData, void *outputData, vector<Attribute> attrs, 
+							int pos, AttrType type)
+{
+	unsigned int offset = 0;
+	unsigned int attrLength = 0;
+
+	for (int i = 0; i < pos; i++) 
+	{
+		if (attrs[i].type == TypeInt)
+			offset += sizeof(int);
+		else if (attrs[i].type == TypeReal)
+			offset += sizeof(float);
+		else 
+		{
+			int stringLength = *(int *) ((char *) inputData + offset);
+			offset += sizeof(int) + stringLength;
+		}
+	}
+
+	if (type == TypeInt) {
+		attrLength = sizeof(int);
+	} else if (type == TypeReal) {
+		attrLength = sizeof(float);
+	} else {
+		attrLength = *(int *) ((char *) inputData + offset) + sizeof(int);
+	}
+
+	memcpy(outputData, (char *) inputData + offset, attrLength);
+
 }

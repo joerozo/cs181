@@ -259,6 +259,9 @@ class INLJoin : public Iterator {
             void* outervalue;
             unsigned pos;
             string tableName;
+
+        private:
+            void ReadTupleField(void * inputData, void *outputData, vector<Attribute> attrs, int pos, AttrType type);
 };
 
 
