@@ -1,11 +1,11 @@
 1. Basic information
 Team number (e.g., 01) : 
-#1 Student ID : 
-#1 Student Name : 
-#2 Student ID : 
-#2 Student Name : 
-#3 Student ID : 
-#3 Student Name : 
+#1 Student ID : 1436764
+#1 Student Name : Alix Feinsod
+#2 Student ID : 1439549
+#2 Student Name : Alec Reid
+#3 Student ID : 1336383
+#3 Student Name : Joe Rozo
 
 
 2. Catalog information about Index
@@ -13,17 +13,35 @@ Team number (e.g., 01) :
 
 
 3. Index Nested Loop Join
-- Describe how your Index Nested Loop Join works.
+- Describe how your Index Nested Loop Join works: 
 
+We keep current inner iterator and current outer value as variables in INLJoin object itself.
+
+Then within the get next tuple function, we do the following:
+
+if(inner iterator.getnexttuple does not succeed) {
+	call outer iterator.getnexttuple
+	reinitialize inner iterator
+	call function again
+}
+else {
+	if current tuples’ lsh attribute and rhs attribute are equal{
+		join 2 tuples
+		return
+	else{
+		call function again
+	}
+}
 
 4. Implementation Detail
-- Have you added your own source file (.cc or .h)?
+- Have you added your own source file (.cc or .h)? No 
 
-- Have you implemented any optional features? Then, describe them here.
-
-- Other implementation details:
+- Have you implemented any optional features? Then, describe them here. Nope!
 
 
 5. Other (optional)
-- Freely use this section to tell us about things that are related to the project 4, but not related to the other sections (optional)
+Work breakdown as follows:
+Joe: 4.1 RM Extensions
+Alec: Filter and Iterator
+Alix: Index Nested Loop Join and Project
 
