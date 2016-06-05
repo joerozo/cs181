@@ -321,6 +321,32 @@ INLJoin::~INLJoin(){
 }
 
 RC INLJoin::getNextTuple(void *data){
+	void* innerData;
+	void* outerData;
+
+	RC result;
+	void *initialdata;
+	result = outeriter->getNextTuple(outerData) | outeriter->getNextTuple(innerData);
+	if(result != SUCCESS)
+	{
+		return result;
+	}
+
+	unsigned offset=0;
+	for (int i=0; i<attrNames.size(); i++)
+	{
+		for (int j=0;j<attrs.size(); j++) 
+		{
+
+			if(attrNames[i].name==attrs[j].name) {
+				ReadTupleField(initialdata, tempdata, attrs, j, type);
+				memcpy(data+offset, tempdata, sizeof(tempdata));
+			}				
+		}
+	}
+	return result;
+
+
 }
        
 void INLJoin::getAttributes(vector<Attribute> &attrs) const{
