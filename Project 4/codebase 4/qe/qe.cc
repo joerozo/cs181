@@ -196,10 +196,10 @@ bool Filter::Compare(const void *attribute, const void *condition, AttrType type
 Project::Project(Iterator *input, const vector<string> &attrNames) : iter(input) {
 	//cleaning attributes
 	attrs.clear();
-	this.attrNames=attrNames;
+	this->attrNames=attrNames;
 	//getting attributes
 	this->iter->getAttributes(attrs);
-	this.type=type;
+	this->type=type;
 
 }
 
@@ -218,9 +218,9 @@ RC Project::getNextTuple(void *data) {
 	}
 	void *tempdata;
 	unsigned offset=0;
-	for (int i=0; i<attrNames.size(); i++){
-		for (int j=0;j<attrs.size(); j++) {
-			if(attrNames[i].name==attrs[j].name) {
+	for (uint i=0; i<attrNames.size(); i++){
+		for (uint j=0;j<attrs.size(); j++) {
+			if(attrNames[i]==attrs[j].name) {
 				ReadTupleField(initialdata, tempdata, attrs, j, type);
 				memcpy(data+offset, tempdata, sizeof(tempdata));
 				offset+=sizeof(tempdata);
@@ -234,16 +234,6 @@ void Project::getAttributes(vector<Attribute> &attrs) const
 {
 	attrs.clear();
 	attrs = this->attrs;
-	unsigned i;
-
-    // For attribute in vector<Attribute>, name it as rel.attr
- 	for(i = 0; i < attrs.size(); ++i)
-	{
-    	string tmp = tableName;
-      	tmp += ".";
-    	tmp += attrs.at(i).name;
-   		attrs.at(i).name = tmp;
-	}
 }
 
 void Project::ReadTupleField(void * inputData, void *outputData, vector<Attribute> attrs, 
@@ -347,16 +337,6 @@ RC INLJoin::getNextTuple(void *data){
 void INLJoin::getAttributes(vector<Attribute> &attrs) const{
 	attrs.clear();
 	attrs = this->attrs;
-	unsigned i;
-
-    // For attribute in vector<Attribute>, name it as rel.attr
-    for(i = 0; i < attrs.size(); ++i)
-    {
-        string tmp = tableName;
-        tmp += ".";
-        tmp += attrs.at(i).name;
-        attrs.at(i).name = tmp;
-    }
 }
 
 
