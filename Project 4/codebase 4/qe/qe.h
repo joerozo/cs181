@@ -40,6 +40,7 @@ class Iterator {
         virtual RC getNextTuple(void *data) = 0;
         virtual void getAttributes(vector<Attribute> &attrs) const = 0;
         virtual ~Iterator() {};
+        virtual close() {};
 };
 
 
@@ -258,7 +259,7 @@ class INLJoin : public Iterator {
             void* data;
             void* value;
             AttrType type;
-            void* outervalue;
+            void* outerdata;
             unsigned pos;
             string tableName;
             Condition condition;
