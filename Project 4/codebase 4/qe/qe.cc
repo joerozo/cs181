@@ -276,10 +276,10 @@ INLJoin::INLJoin(Iterator *leftIn,           // Iterator of input R
 	outeriter=leftIn;
 	//cleaning attributes
 	attrs.clear();
-
+	this->condition=condition;
 
 	//getting attributes
-	this->iter->getAttributes(attrs);
+	this->inneriter->getAttributes(attrs);
 
 	for(unsigned i = 0; i < attrs.size(); i++)
 	{
@@ -304,7 +304,7 @@ RC INLJoin::getNextTuple(void *data){
 
 	RC result;
 	void *innerdata;
-	result = inneriter->getNextTuple(initialdata);
+	result = inneriter->getNextTuple(innerdata);
 	if(result != SUCCESS)
 	{
 		if(outervalue==NULL) {
@@ -312,7 +312,7 @@ RC INLJoin::getNextTuple(void *data){
 		}
 		else {
 			getNextTuple(outervalue);
-			inneriter.close();
+			inneriter->close();
 			getNextTuple(data);
 		}
 	}
